@@ -1,0 +1,32 @@
+{
+  "name": "polysafe",
+  "version": "1.0.0",
+  "description": "Safe storage on Polygon blockchain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "polygon",
+    "secret",
+    "safe",
+    "password",
+    "tresor",
+    "keypass"
+  ],
+  "author": "tonibuenter",
+  "license": "ISC",
+  "devDependencies": {
+    "ganache": "^7.7.6",
+    "prettier": "^2.8.4",
+    "truffle": "^5.7.9",
+    "truffle-assertions": "^0.9.2"
+  },
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^1.4.0",
+    "truffle-contract": "^4.0.31",
+    "web3": "^1.8.2",
+    "web3.storage": "^4.5.4",
+    "node-fetch": "^3.3.0"
+  }
+}
