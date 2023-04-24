@@ -40,7 +40,6 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
-
 # TypeScript v1 declaration files
 typings/
 
@@ -67,3 +66,9 @@ typings/
 
 
 .idea/
+
+build/
+
+config/
+
+start-ganache.sh

@@ -1,0 +1,25 @@
+{
+  "short_name": "KeyBlock",
+  "name": "KeyBlock Dapp",
+  "icons": [
+    {
+      "src": "keyblock-favicon.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "keyblock.png",
+      "type": "image/png",
+      "sizes": "120x130"
+    },
+    {
+      "src": "keyblock2.png",
+      "type": "image/png",
+      "sizes": "512x553"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
