@@ -1,5 +1,6 @@
-import { createStore, Store } from 'redux';
+import { Store } from 'redux';
 import { KeyBlockReduxState } from './types';
+import { legacy_createStore as createStore } from 'redux';
 
 export const ACTIONS = {
   UPDATE: 'UPDATE'
@@ -30,7 +31,6 @@ export function createReduxStore(): Store<KeyBlockReduxState> {
   if (store) {
     return store;
   }
-  console.debug('createReduxStore');
   store = createStore(reducer0);
   return store;
 }

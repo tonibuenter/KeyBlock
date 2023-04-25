@@ -8,7 +8,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField
+  TextField,
+  useTheme
 } from '@mui/material';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { EmptyItem, errorMessage, infoMessage, isStatusMessage, Item } from '../types';
@@ -22,7 +23,7 @@ import { display64 } from '../utils/crypt-util';
 import Web3 from 'web3';
 
 const KeyBlockTableUi: FC = () => {
-  console.debug('render KeyBlockTableUi');
+  const theme = useTheme();
   const web3 = useWeb3();
   const publicAddress = usePublicAddress();
   const [rows, setRows] = useState<Item[]>([]);
@@ -111,7 +112,7 @@ const KeyBlockTableUi: FC = () => {
         alignItems="center"
         spacing={2}
         mb={'1em'}
-        sx={{ backgroundColor: grey.A100 }}
+        sx={{ backgroundColor: theme.palette.mode === 'dark' ? grey['900'] : grey.A100 }}
       >
         <TextField
           size={'small'}

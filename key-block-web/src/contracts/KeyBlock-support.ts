@@ -29,9 +29,7 @@ export async function KeyBlock_len(web3: Web3, from: string): Promise<number | S
 export async function KeyBlock_get(web3: Web3, from: string, index: number): Promise<string[] | StatusMessage> {
   try {
     const contract = getKeyBlockContract(web3);
-    const res = await contract.methods.get(index).call({ from });
-    console.debug(res);
-    return res;
+    return await contract.methods.get(index).call({ from });
   } catch (e) {
     console.error('KeyBlock_get failed', e);
     return errorMessage('Could not get entry', e);
@@ -47,9 +45,7 @@ export async function KeyBlock_add(
   const inserted = moment().format('YYYY-MM-DD HH:mm');
   try {
     const contract = getKeyBlockContract(web3);
-    const res = await contract.methods.add(name, secretContent, inserted).send({ from });
-    console.debug('res', res);
-    return res;
+    return await contract.methods.add(name, secretContent, inserted).send({ from });
   } catch (e) {
     console.error('KeyBlock_add failed', e);
     return errorMessage('Could not add entry', e);

@@ -49,7 +49,7 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
 
   return (
     <Dialog open={open} onClose={done} fullWidth={true} maxWidth={'md'}>
-      <DialogTitle>Info Page</DialogTitle>
+      <DialogTitle>Web3 Info Page</DialogTitle>
       <DialogContent>
         <Stack spacing={4}>
           <DialogContentText>This info page shows information about the KeyBlock contract and more:</DialogContentText>
@@ -64,11 +64,11 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
               <TableBody>
                 <TableRow key={'KeyBlock Contract Address'}>
                   <TableCell key={'name'}>Contract Address</TableCell>
-                  <TableCell key={'value'}>{process.env['REACT_APP_POLYSAFE_CONTRACT']}</TableCell>{' '}
+                  <TableCell key={'value'}>{process.env['REACT_APP_POLYSAFE_CONTRACT']}</TableCell>
                 </TableRow>
                 <TableRow key={'Your Address'}>
                   <TableCell key={'name'}>Your Address</TableCell>
-                  <TableCell key={'value'}>{publicAddress}</TableCell>{' '}
+                  <TableCell key={'value'}>{publicAddress}</TableCell>
                 </TableRow>
                 <TableRow key={'Your Public Key'}>
                   <TableCell key={'name'}>Your Public Key</TableCell>
@@ -91,7 +91,7 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
                 <TableRow key={'balance-chainId'}>
                   <TableCell key={'name'}>Chain Id</TableCell>
                   <TableCell key={'value'}>{loading || !web3 ? 'loading' : chainId}</TableCell>
-                </TableRow>{' '}
+                </TableRow>
                 <TableRow key={'balance-gasPriceWei'}>
                   <TableCell key={'name'}>Gas Price Wei</TableCell>
                   <TableCell key={'value'}>{loading || !web3 ? 'loading' : gasPriceWei}</TableCell>
@@ -108,8 +108,9 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
   );
 }
 
-export function networkIdToName(networkId: number): string {
-  switch (networkId) {
+export function networkIdToName(networkId: number | string): string {
+  const id = +networkId || 0;
+  switch (id) {
     case 1:
       return 'Mainnet: 1';
     case 3:

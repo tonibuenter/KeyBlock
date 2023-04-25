@@ -3,19 +3,9 @@
   "name": "KeyBlock Dapp",
   "icons": [
     {
-      "src": "keyblock-favicon.png",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "keyblock.png",
+      "src": "keyblock200.png",
       "type": "image/png",
-      "sizes": "120x130"
-    },
-    {
-      "src": "keyblock2.png",
-      "type": "image/png",
-      "sizes": "512x553"
+      "sizes": "200x200"
     }
   ],
   "start_url": ".",

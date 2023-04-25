@@ -29,7 +29,6 @@ export const dispatchStatusMessage = (statusMessage?: StatusMessage) =>
   });
 
 export const usePublicAddress = () => useSelector((state: KeyBlockReduxState) => state.publicAddress);
-export const usePublicKey = () => useSelector((state: KeyBlockReduxState) => state.publicKey);
 
 export const dispatchPublicAddress = (publicAddress: string) =>
   getStore().dispatch({
@@ -37,8 +36,18 @@ export const dispatchPublicAddress = (publicAddress: string) =>
     payload: { publicAddress }
   });
 
+export const usePublicKey = () => useSelector((state: KeyBlockReduxState) => state.publicKey);
+
 export const dispatchPublicKey = (publicKey: string) =>
   getStore().dispatch({
     type: ACTIONS.UPDATE,
     payload: { publicKey }
+  });
+
+export const useNetworkId = () => useSelector((state: KeyBlockReduxState) => state.networkId);
+
+export const dispatchNetworkId = (networkId: string) =>
+  getStore().dispatch({
+    type: ACTIONS.UPDATE,
+    payload: { networkId }
   });

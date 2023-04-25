@@ -1,4 +1,4 @@
-import { usePublicAddress } from '../redux-support';
+import { useNetworkId, usePublicAddress } from '../redux-support';
 import Login from './Login';
 import KeyBlockTableUi from './KeyBlockTableUi';
 import { AppBar, Box, Container, IconButton, Stack, Toolbar, useTheme } from '@mui/material';
@@ -14,12 +14,15 @@ import KeyIcon from '@mui/icons-material/Key';
 import { green } from '@mui/material/colors';
 import Loader from './Loader';
 import { displayAddress } from '../utils/crypt-util';
+import logo from '../images/keyblock200.png';
+import { networkIdToName } from './Web3InfoPage';
 
 export function KeyBlockApp() {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
 
   const publicAddress = usePublicAddress();
+  const networkId = useNetworkId();
 
   return (
     <Box
@@ -37,7 +40,10 @@ export function KeyBlockApp() {
       <AppBar
         position="static"
         elevation={0}
-        sx={{ background: 'black', color: theme.palette.mode === 'dark' ? 'lightGray' : undefined }}
+        sx={{
+          background: theme.palette.mode === 'dark' ? 'ffaf00' : 'black',
+          color: theme.palette.mode === 'dark' ? 'gray' : undefined
+        }}
       >
         <Toolbar variant="regular">
           <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2} sx={{ width: '100%' }}>
@@ -48,7 +54,7 @@ export function KeyBlockApp() {
               spacing={0.5}
               sx={{ fontWeight: 'bold', fontSize: '120%' }}
             >
-              <KeyIcon fontSize={'large'} />
+              <img src={logo} alt={'KeyBlock'} style={{ maxHeight: '1.2em' }} />
               <Box>Welcome to KeyBlock</Box>
             </Stack>
             <Stack
@@ -60,6 +66,7 @@ export function KeyBlockApp() {
             >
               {publicAddress ? <LinkIcon /> : <LinkOffIcon />}
               <Box>{publicAddress ? displayAddress(publicAddress) : 'not connected'}</Box>
+              <Box>{networkId ? networkIdToName(networkId) : ''}</Box>
             </Stack>
             <IconButton style={{ float: 'right' }} onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}

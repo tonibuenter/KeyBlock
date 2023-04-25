@@ -1,9 +1,15 @@
 import { useEffect } from 'react';
 import Web3 from 'web3';
-import { dispatchPublicAddress, dispatchPublicKey, dispatchStatusMessage, dispatchWeb3 } from '../redux-support';
+import {
+  dispatchNetworkId,
+  dispatchPublicAddress,
+  dispatchPublicKey,
+  dispatchStatusMessage,
+  dispatchWeb3
+} from '../redux-support';
 import { Box, Button, Stack } from '@mui/material';
 
-import logo from '../images/keyblock.png';
+import logo from '../images/keyblock200.png';
 
 const Login: React.FC = () => {
   const w: Window & any = window;
@@ -27,7 +33,12 @@ const Login: React.FC = () => {
       w?.ethereum?.on('accountsChanged', (e: never) => {
         const newPublicAddress = e[0];
         dispatchPublicAddress(newPublicAddress);
-        w?.location?.reload();
+        //w?.location?.reload();
+      });
+
+      w?.ethereum?.on('networkChanged', (networkId: never) => {
+        console.debug('Network changed', networkId);
+        dispatchNetworkId(networkId);
       });
 
       const publicAddress = await getCurrentAddress(web3);
