@@ -12,54 +12,59 @@ import {
   useTheme
 } from '@mui/material';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
-import { EmptyItem, errorMessage, infoMessage, isStatusMessage, Item } from '../types';
+import { EmptyItem, errorMessage, infoMessage, isStatusMessage, Item, StatusMessage } from '../types';
 import { KeyBlockEntry } from './KeyBlockEntryUi';
-import { dispatchLoading, dispatchStatusMessage, usePublicAddress, useWeb3 } from '../redux-support';
+import { dispatchLoading, dispatchStatusMessage, useNetworkId, usePublicAddress, useWeb3 } from '../redux-support';
 import { grey } from '@mui/material/colors';
 import { KeyBlock_get, KeyBlock_len } from '../contracts/KeyBlock-support';
 import { StatusMessageElement } from './utils';
-import { Web3InfoPage } from './Web3InfoPage';
+import { getBlockchainByNetworkId, getContractAddressByNetworkId } from './Web3InfoPage';
 import { display64 } from '../utils/crypt-util';
 import Web3 from 'web3';
 
 const KeyBlockTableUi: FC = () => {
   const theme = useTheme();
+  const networkId = useNetworkId();
   const web3 = useWeb3();
   const publicAddress = usePublicAddress();
   const [rows, setRows] = useState<Item[]>([]);
   const [editItem, setEditItem] = useState(EmptyItem);
   const [filterValue, setFilterValue] = useState('');
   const [openEditor, setOpenEditor] = useState(false);
-  const [openInfoPage, setOpenInfoPage] = useState(false);
   const [numberOfEntries, setNumberOfEntries] = useState(-1);
 
   useEffect(() => {
     const load = async () => {
-      await refreshFromBlockchain(publicAddress, numberOfEntries, web3, setNumberOfEntries, setRows);
+      await refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows);
     };
-    load();
-  }, [web3, rows, numberOfEntries, publicAddress]);
+    load().catch(console.error);
+  }, [web3, publicAddress, networkId]);
 
-  const update = useCallback(
-    (item0: Item) =>
-      setRows((rows) => {
-        if (item0.index === -1) {
-          return [...rows, { ...item0, index: rows.length }];
-        } else {
-          return rows.map((r) => (r.index === item0.index ? item0 : r));
-        }
-      }),
-    []
-  );
+  // const update = useCallback(
+  //   (item0: Item) =>
+  //     setRows((rows) => {
+  //       if (item0.index === -1) {
+  //         return [...rows, { ...item0, index: rows.length }];
+  //       } else {
+  //         return rows.map((r) => (r.index === item0.index ? item0 : r));
+  //       }
+  //     }),
+  //   []
+  // );
 
   const renderKeyBlockEntryTable = useCallback(() => {
-    if (numberOfEntries === -1) {
-      return (
-        <StatusMessageElement key={-1} statusMessage={errorMessage('No entries could be read from Blockchain!')} />
+    let statusMessage: StatusMessage | undefined = undefined;
+    if (!getContractAddressByNetworkId(networkId)) {
+      statusMessage = errorMessage(`No KeyBlock contract found on ${getBlockchainByNetworkId(networkId || 0)}`);
+    } else if (numberOfEntries === -1) {
+      statusMessage = infoMessage(`Trying to read KeyBlock entries from ${getBlockchainByNetworkId(networkId || 0)}`);
+    } else if (numberOfEntries === 0) {
+      statusMessage = infoMessage(
+        `No KeyBlock entries found on Blockchain ${getBlockchainByNetworkId(networkId || 0)}`
       );
     }
-    if (numberOfEntries === 0) {
-      return <StatusMessageElement key={0} statusMessage={infoMessage('No saved on Blockchain save yet!')} />;
+    if (statusMessage) {
+      return <StatusMessageElement statusMessage={statusMessage} />;
     }
     return (
       <TableContainer key="table" component={Paper}>
@@ -94,18 +99,16 @@ const KeyBlockTableUi: FC = () => {
           </TableBody>
         </Table>
         <Stack direction="row" justifyContent="flex-end" alignItems="center" spacing={2}>
-          <Button
-            onClick={() => refreshFromBlockchain(publicAddress, numberOfEntries, web3, setNumberOfEntries, setRows)}
-          >
+          <Button onClick={() => refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows)}>
             Refresh data from blockchain
           </Button>
         </Stack>
       </TableContainer>
     );
-  }, [publicAddress, web3, numberOfEntries, rows, filterValue]);
+  }, [publicAddress, web3, numberOfEntries, rows, filterValue, networkId]);
 
   return (
-    <Stack mt={'2em'} mb={'1em'}>
+    <Stack>
       <Stack
         direction={'row'}
         justifyContent="space-between"
@@ -116,11 +119,10 @@ const KeyBlockTableUi: FC = () => {
       >
         <TextField
           size={'small'}
-          label={'filter'}
+          label={'Name filter'}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setFilterValue(e.target.value)}
           value={filterValue}
         />
-        <Button onClick={() => setOpenInfoPage(true)}>Info Page</Button>{' '}
         <Button
           onClick={() => {
             setEditItem({ ...EmptyItem });
@@ -138,9 +140,8 @@ const KeyBlockTableUi: FC = () => {
         done={() => {
           setOpenEditor(false);
         }}
-        update={update}
+        update={() => refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows)}
       />
-      <Web3InfoPage open={openInfoPage} done={() => setOpenInfoPage(false)}></Web3InfoPage>
     </Stack>
   );
 };
@@ -148,16 +149,23 @@ export default KeyBlockTableUi;
 
 async function refreshFromBlockchain(
   publicAddress: string | undefined,
-  numberOfEntries: number,
+  networkId: number,
   web3: Web3 | undefined,
   setNumberOfEntries: (n: number) => void,
   setRows: (items: Item[]) => void
 ) {
-  if (publicAddress && web3 && numberOfEntries === -1) {
+  if (!publicAddress || !web3 || !networkId) {
+    return;
+  }
+  setRows([]);
+  try {
+    dispatchLoading('Reading entries...');
+    dispatchStatusMessage();
     const len = await KeyBlock_len(web3, publicAddress);
     if (isStatusMessage(len)) {
+      setNumberOfEntries(0);
       dispatchStatusMessage(len);
-      setNumberOfEntries(-2);
+      return;
     } else {
       setNumberOfEntries(len);
     }
@@ -173,5 +181,9 @@ async function refreshFromBlockchain(
       }
     }
     setRows(items);
+  } catch (e) {
+    dispatchStatusMessage(errorMessage('Serious Error', e));
+  } finally {
+    dispatchLoading('');
   }
 }

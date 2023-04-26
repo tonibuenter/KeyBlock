@@ -44,10 +44,13 @@ export const dispatchPublicKey = (publicKey: string) =>
     payload: { publicKey }
   });
 
-export const useNetworkId = () => useSelector((state: KeyBlockReduxState) => state.networkId);
+export const useNetworkId = (): number => useSelector((state: KeyBlockReduxState) => state.networkId || 0);
+export const getNetworkId = (): number => getStore().getState().networkId || 0;
 
-export const dispatchNetworkId = (networkId: string) =>
-  getStore().dispatch({
+export const dispatchNetworkId = (networkId: number) => {
+  console.debug('networkId', networkId);
+  return getStore().dispatch({
     type: ACTIONS.UPDATE,
     payload: { networkId }
   });
+};

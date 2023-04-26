@@ -158,6 +158,7 @@ export function KeyBlockEntry({
             <Button
               disabled={!(entry.enc && entry.value && dirty)}
               onClick={async () => {
+                dispatchLoading('Saving BlockEntry...');
                 setStatusMessage(infoMessage('Saving... Please confirm/reject MetaMask dialog!'));
                 try {
                   if (item0.index === -1) {
@@ -183,6 +184,8 @@ export function KeyBlockEntry({
                   done();
                 } catch (e) {
                   setStatusMessage(errorMessage('Save not successful!', e));
+                } finally {
+                  dispatchLoading('');
                 }
                 setDirty(false);
               }}

@@ -3,9 +3,9 @@ import React from 'react';
 import { useLoading } from '../redux-support';
 
 export default function Loader() {
-  const open = useLoading();
+  const message = useLoading();
 
-  if (open) {
+  if (message) {
     return (
       <>
         <Box
@@ -40,7 +40,7 @@ export default function Loader() {
             <div>
               <CircularProgress color={'primary'} />
             </div>
-            <div style={{ whiteSpace: 'nowrap', fontSize: '120%' }}>Request is processing...</div>
+            <div style={{ whiteSpace: 'nowrap', fontSize: '120%' }}>{message}</div>
           </Stack>
         </Box>
       </>

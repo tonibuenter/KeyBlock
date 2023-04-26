@@ -8,7 +8,7 @@ export interface KeyBlockReduxState {
   web3?: Web3;
   statusMessage?: StatusMessage;
   publicAddress?: string;
-  networkId?: string;
+  networkId?: number;
   publicKey?: string;
   loading?: string;
 }

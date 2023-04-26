@@ -10,6 +10,7 @@ import {
 import { Box, Button, Stack } from '@mui/material';
 
 import logo from '../images/keyblock200.png';
+import { errorMessage } from '../types';
 
 const Login: React.FC = () => {
   const w: Window & any = window;
@@ -38,20 +39,31 @@ const Login: React.FC = () => {
 
       w?.ethereum?.on('networkChanged', (networkId: never) => {
         console.debug('Network changed', networkId);
-        dispatchNetworkId(networkId);
+        if (+networkId) {
+          dispatchNetworkId(+networkId);
+        }
       });
+
+      const networkId = await getCurrentNetworkId(web3);
+      if (networkId) {
+        dispatchNetworkId(networkId);
+      } else {
+        dispatchStatusMessage(errorMessage('Web3 could not detect network!'));
+        return;
+      }
 
       const publicAddress = await getCurrentAddress(web3);
 
       if (!publicAddress) {
-        dispatchStatusMessage({ status: 'error', userMessage: 'Please open MetaMask first.' });
+        dispatchStatusMessage(errorMessage('Please open MetaMask first.', 'Web could not detect an public address!'));
+        return;
       } else {
         const publicKey = await getPublicKey64(publicAddress);
         dispatchPublicKey(publicKey);
         dispatchPublicAddress(publicAddress);
       }
     } catch (error) {
-      console.error(error);
+      dispatchStatusMessage(errorMessage('Error occurred while connecting to Wallet', error));
     }
   };
 
@@ -87,4 +99,8 @@ export async function getPublicKey64(publicAddress: string): Promise<string> {
     method: 'eth_getEncryptionPublicKey',
     params: [publicAddress]
   })) as string;
+}
+
+async function getCurrentNetworkId(web3: Web3) {
+  return (await web3.eth.net.getId()) || -1;
 }
