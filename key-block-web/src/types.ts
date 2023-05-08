@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 
 export function isError(e: any): e is Error {
-  return e && e instanceof Error;
+  return e && e.message;
 }
 
 export interface KeyBlockReduxState {

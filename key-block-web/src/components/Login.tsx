@@ -13,7 +13,7 @@ import logo from '../images/keyblock200.png';
 import { errorMessage } from '../types';
 
 const Login: React.FC = () => {
-  const w: Window & any = window;
+  const w: any = window;
 
   useEffect(() => {
     if (w.ethereum) {

@@ -55,7 +55,7 @@ const KeyBlockTableUi: FC = () => {
   const renderKeyBlockEntryTable = useCallback(() => {
     let statusMessage: StatusMessage | undefined = undefined;
     if (!getContractAddressByNetworkId(networkId)) {
-      statusMessage = errorMessage(`No KeyBlock contract found on ${getBlockchainByNetworkId(networkId || 0)}`);
+      statusMessage = infoMessage(`No data`);
     } else if (numberOfEntries === -1) {
       statusMessage = infoMessage(`Trying to read KeyBlock entries from ${getBlockchainByNetworkId(networkId || 0)}`);
     } else if (numberOfEntries === 0) {

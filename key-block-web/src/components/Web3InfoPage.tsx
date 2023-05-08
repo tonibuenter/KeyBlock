@@ -62,7 +62,7 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
               <TableBody>
                 <TableRow key={'KeyBlock Contract Address'}>
                   <TableCell key={'name'}>Contract Address</TableCell>
-                  <TableCell key={'value'}>{process.env['REACT_APP_POLYSAFE_CONTRACT']}</TableCell>
+                  <TableCell key={'value'}>{getContractAddressByNetworkId(networkId)}</TableCell>
                 </TableRow>
                 <TableRow key={'Your Address'}>
                   <TableCell key={'name'}>Your Address</TableCell>
@@ -99,7 +99,7 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
                 <TableRow key={'block-scan'}>
                   <TableCell key={'name'}>Block Explorer</TableCell>
                   <TableCell key={'value'}>
-                    <a target={'_blank'} href={blockexplorerByNetworkId(networkId)}>
+                    <a target={'_blank'} href={blockexplorerByNetworkId(networkId)} rel="noreferrer">
                       {blockexplorerByNetworkId(networkId)}
                     </a>
                   </TableCell>
@@ -184,7 +184,9 @@ export function blockexplorerByNetworkId(networkId: number): string {
       return 'https://etherscan.io/';
     case 3:
     case 4:
+      return '';
     case 5:
+      return 'https://goerli.etherscan.io';
     case 42:
       return 'ETH';
     case 56:
@@ -193,14 +195,16 @@ export function blockexplorerByNetworkId(networkId: number): string {
     case 100:
       return 'xDai';
     case 250:
+      return 'https://ftmscan.com/';
     case 4002:
       // FANTOM_TESTNET;
       return 'https://testnet.ftmscan.com/';
     case 5777:
-      return 'Ether';
+      return '';
     case 137:
+      return 'https://polygonscan.com/';
     case 80001:
-      return 'Matic';
+      return 'https://mumbai.polygonscan.com/';
     case -1:
       return 'https://optimistic.etherscan.io/';
     default:
@@ -215,6 +219,8 @@ export function getContractAddressByNetworkId(networkId: number): string | undef
     case 3:
     case 4:
     case 5:
+      return process.env['REACT_APP_CONTRACT_ETHEREUM_GOERLI'];
+
     case 42:
       return '';
     case 56:

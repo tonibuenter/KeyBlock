@@ -5,7 +5,6 @@ import moment from 'moment';
 import { getNetworkId } from '../redux-support';
 import { getContractAddressByNetworkId, getBlockchainByNetworkId } from '../components/Web3InfoPage';
 
-//const contractAddress = process.env['REACT_APP_POLYSAFE_CONTRACT'];
 const { abi } = require('./KeyBlock.json');
 let currentNetworkId = 0;
 
@@ -72,7 +71,7 @@ export async function KeyBlock_add(
     return await contract.methods.add(name, secretContent, inserted).send({ from });
   } catch (e) {
     console.error('KeyBlock_add failed', e);
-    return errorMessage('Could not add entry', e);
+    return errorMessage('Could not add KeyBlock entry', e);
   }
 }
 

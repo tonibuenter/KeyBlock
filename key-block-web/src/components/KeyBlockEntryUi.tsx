@@ -19,11 +19,11 @@ import {
 } from '../types';
 import { Box, Stack } from '@mui/material';
 import { dispatchLoading, usePublicAddress, usePublicKey, useWeb3 } from '../redux-support';
-import { decryptContent, encryptContent } from '../utils/mm-web-util';
 import { StatusMessageElement } from './utils';
 import moment from 'moment';
 import { KeyBlock_add, KeyBlock_set } from '../contracts/KeyBlock-support';
 import { orange } from '@mui/material/colors';
+import { decryptContent, encryptContent } from '../utils/crypt-util';
 
 type EditEntry = { value: string; enc: boolean; name: string };
 
@@ -89,7 +89,10 @@ export function KeyBlockEntry({
             value={entry.name || ''}
             label="Name"
             fullWidth
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setEntry((i) => ({ ...i, name: e.target.value }))}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setEntry((i) => ({ ...i, name: e.target.value }));
+              setDirty(true);
+            }}
             variant="standard"
           />
           <TextField
