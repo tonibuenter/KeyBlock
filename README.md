@@ -1,4 +1,6 @@
-# Key Block
+# [](docs/img.png) Key Block
+
+![img.png](docs/img.png)
 
 A safe storage for you secrets:
 - Fully encrypted password with your private key
@@ -6,8 +8,6 @@ A safe storage for you secrets:
 - No unencrypted storage
 - On multiple blockchain deployed: Ethereum, Polygon, Fantom
 - Testnet: Fantom Testnet
-
-![img.png](docs/img.png)
 
 
 ## List of secrets
