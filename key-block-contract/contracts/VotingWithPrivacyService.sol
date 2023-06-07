@@ -1,7 +1,7 @@
 pragma solidity 0.8;
 // SPDX-License-Identifier: MIT
 
-contract VotingWithPrivacy
+contract VotingWithPrivacyService
 {
 
     string question_en;
@@ -12,7 +12,7 @@ contract VotingWithPrivacy
 
     mapping(address => Ballot1[]) addressToMessagesMap;
 
-    struct  {
+    struct  Ballot1 {
         address sender;
         string textEnc;
         uint256 inserted;
@@ -21,8 +21,8 @@ contract VotingWithPrivacy
 
     function send(address _receiver, string memory _textEnc) public
     {
-        Message[] storage messageList = addressToMessagesMap[_receiver];
-        messageList.push(Message(msg.sender, _textEnc, block.timestamp));
+        Ballot1[] storage list = addressToMessagesMap[_receiver];
+        list.push(Ballot1(msg.sender, _textEnc, block.timestamp));
     }
 
     function get(uint256 _index) public view returns

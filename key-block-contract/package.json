@@ -20,7 +20,10 @@
     "ganache": "^7.7.6",
     "prettier": "^2.8.4",
     "truffle": "^5.7.9",
-    "truffle-assertions": "^0.9.2"
+    "truffle-assertions": "^0.9.2",
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
+    "chai": "^4.3.7"
   },
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.4.0",
