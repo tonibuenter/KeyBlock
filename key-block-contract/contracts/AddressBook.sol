@@ -1,35 +1,27 @@
 pragma solidity 0.8;
 // SPDX-License-Identifier: MIT
 
-contract PrivateMessageStore
+contract AddressBook
 {
-    uint256 public constant MAX_LENGTH_SUBJECT = 256; // Set this to your desired maximum length
-    uint256 public constant MAX_LENGTH_TEXT = 512; // Set this to your desired maximum length
+    uint256 public constant MAX_LENGTH_NAME = 256;
 
-    struct MessageInBox {
-        address sender;
-        uint256 indexOutBox;
-        string subjectInBox;
-        string textInBox;
+    struct AddressEntry {
+        address address0;
+        string name;
         uint256 inserted;
-
-        uint256 confirmedTime;
-        bool confirmed;
-        bool hasReply;
-        uint256 replyIndex;
-        bytes32 contentHash;
+        uint256 state;
     }
 
-    struct MessageOutBox {
-        address receiver;
-        uint256 indexInBox;
-        string subjectOutBox;
-        string textOutBox;
-        bytes32 contentHash;
+
+    struct OwnerEntry {
+        string name;
+        uint256 inserted;
+                uint256 state;
     }
 
-    mapping(address => MessageInBox[]) addressToMessageInBoxMap;
-    mapping(address => MessageOutBox[]) addressToMessageOutBoxMap;
+
+    mapping(address => AddressEntry[]) addressEntriesMap;
+    mapping(address => OwnerEntry) ownerEntryMap;
 
 
     function checkContent(string memory _subjectInBox,
@@ -41,6 +33,46 @@ contract PrivateMessageStore
         require(bytes(_textInBox).length <= MAX_LENGTH_TEXT, "In Box Message text (enc) is too long");
         require(bytes(_subjectOutBox).length <= MAX_LENGTH_SUBJECT, "Out Box Subject text is too long");
         require(bytes(_textOutBox).length <= MAX_LENGTH_TEXT, "Out Box Message text (enc) is too long");
+    }
+
+     function setOwnerEntry(string memory _name, uint256 _state) public
+    {
+        require(bytes(_name).length <= MAX_LENGTH_NAME, "Name is too long");
+        OwnerEntry storage owner = OwnerEntry(_name, block.timestamp, _state);
+    }
+
+     function getOwnerEntry(string memory _name, uint256 _state) public view
+    {
+        require(bytes(_name).length <= MAX_LENGTH_NAME, "Name is too long");
+        OwnerEntry storage owner = OwnerEntry(_name, block.timestamp, _state);
+    }
+
+
+
+    function getOwnerEntry() public view returns
+    (
+        string memory name,
+        string memory value,
+        string memory inserted
+    )
+    {
+        require(_index < itemLists[msg.sender].length, "Index out of bounds");
+        name = itemLists[msg.sender][_index].name;
+        value = itemLists[msg.sender][_index].value;
+        inserted = itemLists[msg.sender][_index].inserted;
+        return (name, value, inserted);
+    }
+
+     function add(address _address0, string memory _name, uint256 _state) public
+    {
+        Item[] storage itemList = itemLists[msg.sender];
+        itemList.push(Item(_name, _value, _inserted));
+    }
+
+    function set(uint256 _index, string memory _name, string memory _value, string memory _inserted) public
+    {
+        require(_index < itemLists[msg.sender].length, "Index out of bounds");
+        itemLists[msg.sender][_index] = Item(_name, _value, _inserted);
     }
 
 
