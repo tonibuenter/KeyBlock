@@ -10,6 +10,7 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import { useContext, useState } from 'react';
 import { ColorModeContext } from '../App';
 import { useNetworkId, usePublicAddress } from '../redux-support';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export function AppHeader() {
   const theme = useTheme();
@@ -17,7 +18,8 @@ export function AppHeader() {
   const publicAddress = usePublicAddress();
   const networkId = useNetworkId();
   const [openInfoPage, setOpenInfoPage] = useState(false);
-
+  const navigate = useNavigate();
+  const location = useLocation();
   return (
     <AppBar
       position="static"
@@ -30,14 +32,15 @@ export function AppHeader() {
       <Toolbar variant="regular">
         <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2} sx={{ width: '100%' }}>
           <Stack
+            onClick={() => navigate('/menu')}
             direction="row"
             justifyContent="center"
             alignItems="center"
             spacing={0.5}
-            sx={{ fontWeight: 'bold', fontSize: '120%' }}
+            sx={{ fontWeight: 'bold', fontSize: '120%', cursor: 'pointer' }}
           >
             <img src={logo} alt={'KeyBlock'} style={{ maxHeight: '1.2em' }} />
-            <Box>Welcome to KeyBlock</Box>
+            <Box>{title(location.pathname)}</Box>
           </Stack>
           <Stack
             direction="row"
@@ -64,4 +67,17 @@ export function AppHeader() {
       <Web3InfoPage open={openInfoPage} done={() => setOpenInfoPage(false)}></Web3InfoPage>
     </AppBar>
   );
+}
+
+function title(path: string) {
+  switch (path) {
+    case '/key-block':
+      return 'Welcome to KeyBlock';
+    case '/public-key-store':
+      return 'Welcome to Public Key Store';
+    case '/login':
+      return 'Connect...';
+    case '/menu':
+      return 'Menu';
+  }
 }

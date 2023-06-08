@@ -7,23 +7,14 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import {
-  EmptyItem,
-  errorMessage,
-  infoMessage,
-  isStatusMessage,
-  Item,
-  NotifyFun,
-  StatusMessage,
-  warningMessage
-} from '../types';
+import { errorMessage, infoMessage, isStatusMessage, NotifyFun, StatusMessage, warningMessage } from '../../types';
 import { Box, Stack } from '@mui/material';
-import { dispatchLoading, usePublicAddress, usePublicKey, useWeb3 } from '../redux-support';
-import { StatusMessageElement } from './utils';
+import { dispatchLoading, usePublicAddress, usePublicKeyHolder, useWeb3 } from '../../redux-support';
+import { StatusMessageElement } from '../utils';
 import moment from 'moment';
-import { KeyBlock_add, KeyBlock_set } from '../contracts/KeyBlock-support';
+import { EmptyItem, Item, KeyBlock_add, KeyBlock_set } from '../../contracts/key-block/KeyBlock-support';
 import { orange } from '@mui/material/colors';
-import { decryptContent, encryptContent } from '../utils/crypt-util';
+import { decryptContent, encryptContent } from '../../utils/crypt-util';
 
 type EditEntry = { value: string; enc: boolean; name: string };
 
@@ -40,7 +31,7 @@ export function KeyBlockEntry({
 }) {
   const web3 = useWeb3();
   const publicAddress = usePublicAddress();
-  const publicKey = usePublicKey();
+  const publicKeyHolder = usePublicKeyHolder();
   const [item0, setItem0] = useState<Item>(EmptyItem);
   const [statusMessage, setStatusMessage] = useState<StatusMessage | undefined>();
   const [dirty, setDirty] = useState(false);
@@ -74,7 +65,7 @@ export function KeyBlockEntry({
       </DialogTitle>
       <DialogContent>
         <Stack spacing={4}>
-          <DialogContentText>You can edit change the name and the secret.</DialogContentText>{' '}
+          <DialogContentText>You can edit change the name and the secret.</DialogContentText>
           {item0.inserted ? (
             <Box>
               index: {item0.index} - inserted: {item0.inserted}
@@ -146,8 +137,11 @@ export function KeyBlockEntry({
             <Button
               disabled={entry.enc || !entry.value}
               onClick={() => {
-                if (publicKey) {
-                  const s0 = encryptContent(publicKey, { value: entry.value, nonce: 'n' + Math.random() });
+                if (publicKeyHolder) {
+                  const s0 = encryptContent(publicKeyHolder.publicKey, {
+                    value: entry.value,
+                    nonce: 'n' + Math.random()
+                  });
                   setEntry((i) => ({ ...i, enc: true, value: s0 }));
                   setStatusMessage(infoMessage('Encryption done successfully'));
                   clearStatusMessageIn(1000);

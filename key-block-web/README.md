@@ -1,6 +1,6 @@
 # KeyBlock Web
 
-KeyBlock Web is a react front end for the KeyBlock contract.
+KeyBlock Web is a ReactJS front end for the KeyBlock contract.
 
 
 ## Functionality

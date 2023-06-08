@@ -3,7 +3,7 @@ import { createReduxStore } from './redux';
 import { createContext, useMemo, useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { blue, orange } from '@mui/material/colors';
-import { KeyBlockApp } from './components/KeyBlockApp';
+import { AppRouter } from './components/AppRouter';
 
 export const ColorModeContext = createContext({
   toggleColorMode: () => {}
@@ -46,7 +46,7 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <Provider store={createReduxStore()}>
-          <KeyBlockApp />
+          <AppRouter />
         </Provider>
       </ThemeProvider>
     </ColorModeContext.Provider>

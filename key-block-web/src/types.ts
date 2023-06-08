@@ -9,7 +9,7 @@ export interface KeyBlockReduxState {
   statusMessage?: StatusMessage;
   publicAddress?: string;
   networkId?: number;
-  publicKey?: string;
+  publicKeyHolder?: PublicKeyHolder;
   loading?: string;
 }
 
@@ -53,5 +53,12 @@ export const isStatusMessage = (arg: any): arg is StatusMessage =>
   arg && typeof arg === 'object' && arg.status && arg.userMessage;
 
 export type NotifyFun = () => void;
-export type Item = { index: number; name: string; secret: string; inserted: string };
-export const EmptyItem: Item = { index: -1, name: '', secret: '', inserted: '' };
+
+// APP TYPES
+
+export type HolderType = 'wallet' | 'public-key-store';
+
+export interface PublicKeyHolder {
+  publicKey: string;
+  holder: HolderType;
+}

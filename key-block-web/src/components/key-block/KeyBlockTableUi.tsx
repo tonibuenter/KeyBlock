@@ -12,14 +12,14 @@ import {
   useTheme
 } from '@mui/material';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
-import { EmptyItem, errorMessage, infoMessage, isStatusMessage, Item, StatusMessage } from '../types';
+import { errorMessage, infoMessage, isStatusMessage, StatusMessage } from '../../types';
 import { KeyBlockEntry } from './KeyBlockEntryUi';
-import { dispatchLoading, dispatchStatusMessage, useNetworkId, usePublicAddress, useWeb3 } from '../redux-support';
+import { dispatchLoading, dispatchStatusMessage, useNetworkId, usePublicAddress, useWeb3 } from '../../redux-support';
 import { grey } from '@mui/material/colors';
-import { KeyBlock_get, KeyBlock_len } from '../contracts/KeyBlock-support';
-import { StatusMessageElement } from './utils';
-import { getBlockchainByNetworkId, getContractAddressByNetworkId } from './Web3InfoPage';
-import { display64 } from '../utils/crypt-util';
+import { EmptyItem, Item, KeyBlock_get, KeyBlock_len } from '../../contracts/key-block/KeyBlock-support';
+import { StatusMessageElement } from '../utils';
+import { getBlockchainByNetworkId, getContractAddressByNetworkId } from '../Web3InfoPage';
+import { display64 } from '../../utils/crypt-util';
 import Web3 from 'web3';
 
 const KeyBlockTableUi: FC = () => {
@@ -99,8 +99,12 @@ const KeyBlockTableUi: FC = () => {
           </TableBody>
         </Table>
         <Stack direction="row" justifyContent="flex-end" alignItems="center" spacing={2}>
-          <Button onClick={() => refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows)}>
-            Refresh data from blockchain
+          <Button
+            onClick={() => {
+              refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows).catch(console.error);
+            }}
+          >
+            Refresh
           </Button>
         </Stack>
       </TableContainer>
@@ -140,7 +144,9 @@ const KeyBlockTableUi: FC = () => {
         done={() => {
           setOpenEditor(false);
         }}
-        update={() => refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows)}
+        update={() => {
+          refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows).catch(console.error);
+        }}
       />
     </Stack>
   );

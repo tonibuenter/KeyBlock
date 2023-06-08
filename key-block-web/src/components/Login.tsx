@@ -3,17 +3,20 @@ import Web3 from 'web3';
 import {
   dispatchNetworkId,
   dispatchPublicAddress,
-  dispatchPublicKey,
+  dispatchPublicKeyHolder,
   dispatchStatusMessage,
   dispatchWeb3
 } from '../redux-support';
 import { Box, Button, Stack } from '@mui/material';
 
 import logo from '../images/keyblock200.png';
-import { errorMessage } from '../types';
+import { errorMessage, HolderType, isStatusMessage, PublicKeyHolder } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { PublicKeyStore_getMine } from '../contracts/public-key-store/PublicKeyStore-support';
 
 const Login: React.FC = () => {
   const w: any = window;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (w.ethereum) {
@@ -32,16 +35,16 @@ const Login: React.FC = () => {
       dispatchWeb3(web3);
 
       w?.ethereum?.on('accountsChanged', (e: never) => {
-        const newPublicAddress = e[0];
-        dispatchPublicAddress(newPublicAddress);
-        //w?.location?.reload();
+        // const newPublicAddress = e[0];
+        // dispatchPublicAddress(newPublicAddress);
+        w?.location?.reload();
       });
 
       w?.ethereum?.on('networkChanged', (networkId: never) => {
-        console.debug('Network changed', networkId);
-        if (+networkId) {
-          dispatchNetworkId(+networkId);
-        }
+        // if (+networkId) {
+        //   dispatchNetworkId(+networkId);
+        // }
+        w?.location?.reload();
       });
 
       const networkId = await getCurrentNetworkId(web3);
@@ -58,9 +61,10 @@ const Login: React.FC = () => {
         dispatchStatusMessage(errorMessage('Please open MetaMask first.', 'Web could not detect an public address!'));
         return;
       } else {
-        const publicKey = await getPublicKey64(publicAddress);
-        dispatchPublicKey(publicKey);
+        const publicKeyHolder = await getPublicKey64(web3, publicAddress);
+        dispatchPublicKeyHolder(publicKeyHolder);
         dispatchPublicAddress(publicAddress);
+        navigate('/menu');
       }
     } catch (error) {
       dispatchStatusMessage(errorMessage('Error occurred while connecting to Wallet', error));
@@ -92,13 +96,23 @@ async function getCurrentAddress(web3: Web3) {
   return addr.toLowerCase();
 }
 
-export async function getPublicKey64(publicAddress: string): Promise<string> {
+export async function getPublicKey64(web3: Web3, publicAddress: string): Promise<PublicKeyHolder> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const w = window as any;
-  return (await w?.ethereum?.request({
-    method: 'eth_getEncryptionPublicKey',
-    params: [publicAddress]
-  })) as string;
+  let publicKey = await PublicKeyStore_getMine(web3, publicAddress);
+  let holder: HolderType = 'wallet';
+  if (isStatusMessage(publicKey)) {
+    console.log(`No Public Key Store contract for: ${publicAddress}`);
+    publicKey = '';
+  }
+  if (!publicKey) {
+    const w = window as any;
+    publicKey = (await w?.ethereum?.request({
+      method: 'eth_getEncryptionPublicKey',
+      params: [publicAddress]
+    })) as string;
+    holder = 'public-key-store';
+  }
+  return { publicKey, holder };
 }
 
 async function getCurrentNetworkId(web3: Web3) {

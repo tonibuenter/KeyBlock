@@ -1,9 +1,9 @@
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
-import { errorMessage, isStatusMessage, StatusMessage } from '../types';
+import { errorMessage, isStatusMessage, StatusMessage } from '../../types';
 import moment from 'moment';
-import { getNetworkId } from '../redux-support';
-import { getContractAddressByNetworkId, getBlockchainByNetworkId } from '../components/Web3InfoPage';
+import { getNetworkId } from '../../redux-support';
+import { getBlockchainByNetworkId, getContractAddressByNetworkId } from '../../components/Web3InfoPage';
 
 const { abi } = require('./KeyBlock.json');
 let currentNetworkId = 0;
@@ -94,3 +94,6 @@ export async function KeyBlock_set(
     return errorMessage('Could not call save Entry', e);
   }
 }
+
+export type Item = { index: number; name: string; secret: string; inserted: string };
+export const EmptyItem: Item = { index: -1, name: '', secret: '', inserted: '' };

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -7,14 +8,13 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { NotifyFun } from '../types';
 import { Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { useNetworkId, usePublicAddress, usePublicKey, useWeb3 } from '../redux-support';
-import { useEffect, useState } from 'react';
+import { useNetworkId, usePublicAddress, usePublicKeyHolder, useWeb3 } from '../redux-support';
 
 export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun }) {
   const networkId = useNetworkId();
   const web3 = useWeb3();
   const publicAddress = usePublicAddress();
-  const publicKey = usePublicKey();
+  const publicKeyHolder = usePublicKeyHolder();
   const [loading, setLoading] = useState(false);
   const [balanceWei, setBalanceWei] = useState('');
   const [chainId, setChainId] = useState(-1);
@@ -70,7 +70,7 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
                 </TableRow>
                 <TableRow key={'Your Public Key'}>
                   <TableCell key={'name'}>Your Public Key</TableCell>
-                  <TableCell key={'value'}>{publicKey}</TableCell>
+                  <TableCell key={'value'}>{publicKeyHolder?.publicKey || ''}</TableCell>
                 </TableRow>
                 <TableRow key={'balance-wei'}>
                   <TableCell key={'name'}>Balance Wei</TableCell>
@@ -179,6 +179,13 @@ export function currencyByNetworkId(networkId: number): string {
 }
 
 export function blockexplorerByNetworkId(networkId: number): string {
+  const info = infoByNetworkId(networkId);
+  return typeof info === 'string' ? info : info.explorerUrl || '';
+}
+
+export type BlockChainInfo = { explorerUrl: string; addressTemplateUrl: string };
+
+export function infoByNetworkId(networkId: number): string | BlockChainInfo {
   switch (networkId) {
     case 1:
       return 'https://etherscan.io/';
@@ -198,7 +205,10 @@ export function blockexplorerByNetworkId(networkId: number): string {
       return 'https://ftmscan.com/';
     case 4002:
       // FANTOM_TESTNET;
-      return 'https://testnet.ftmscan.com/';
+      return {
+        explorerUrl: 'https://testnet.ftmscan.com/',
+        addressTemplateUrl: 'https://testnet.ftmscan.com/address/ADDRESS'
+      };
     case 5777:
       return '';
     case 137:

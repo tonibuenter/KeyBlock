@@ -1,7 +1,7 @@
 import { ACTIONS, getStore } from './redux';
 import { useSelector } from 'react-redux';
 import Web3 from 'web3';
-import { KeyBlockReduxState, StatusMessage } from './types';
+import { KeyBlockReduxState, PublicKeyHolder, StatusMessage } from './types';
 
 export const useLoading = () => useSelector((state: KeyBlockReduxState) => state.loading || '');
 
@@ -36,16 +36,16 @@ export const dispatchPublicAddress = (publicAddress: string) =>
     payload: { publicAddress }
   });
 
-export const usePublicKey = () => useSelector((state: KeyBlockReduxState) => state.publicKey);
+export const usePublicKeyHolder = () => useSelector((state: KeyBlockReduxState) => state.publicKeyHolder);
 
-export const dispatchPublicKey = (publicKey: string) =>
+export const dispatchPublicKeyHolder = (publicKeyHolder: PublicKeyHolder) =>
   getStore().dispatch({
     type: ACTIONS.UPDATE,
-    payload: { publicKey }
+    payload: { publicKeyHolder }
   });
 
 export const useNetworkId = (): number => useSelector((state: KeyBlockReduxState) => state.networkId || 0);
-export const getNetworkId = (): number => getStore().getState().networkId || 0;
+export const getNetworkId = (): number => getStore().getState().networkId ?? 0;
 
 export const dispatchNetworkId = (networkId: number) => {
   console.debug('networkId', networkId);
