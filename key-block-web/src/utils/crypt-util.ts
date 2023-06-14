@@ -69,8 +69,8 @@ export async function decryptData(publicAddress: string, data: Buffer): Promise<
   return Buffer.from(decrypt, 'base64').toString();
 }
 
-export async function decryptContent<Content>(privatePublicAddress: string, content64Enc: string): Promise<Content> {
-  const content64 = await decryptData(privatePublicAddress, Buffer.from(content64Enc, 'base64'));
+export async function decryptContent<Content>(publicAddress: string, content64Enc: string): Promise<Content> {
+  const content64 = await decryptData(publicAddress, Buffer.from(content64Enc, 'base64'));
   return openB64J(content64);
 }
 

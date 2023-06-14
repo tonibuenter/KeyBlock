@@ -3,6 +3,7 @@ import { Contract } from 'web3-eth-contract';
 import { errorMessage, isStatusMessage, StatusMessage } from '../../types';
 import { getNetworkId } from '../../redux-support';
 import { getBlockchainByNetworkId } from '../../components/Web3InfoPage';
+import { decryptContent, encryptContent } from '../../utils/crypt-util';
 
 const { abi } = require('./PrivateMessageStore.json');
 let currentNetworkId = 0;
@@ -25,14 +26,14 @@ export function getPrivateMessageStoreContract(web3: Web3): Contract | StatusMes
   return PrivateMessageStoreContract;
 }
 
-export function getMaxLengthText(web3: Web3): number | StatusMessage {
+export async function getMaxLengthText(web3: Web3): Promise<number | StatusMessage> {
   const contract = getPrivateMessageStoreContract(web3);
-  return isStatusMessage(contract) ? contract : contract.methods.MAX_LENGTH_TEXT();
+  return isStatusMessage(contract) ? contract : await contract.methods.MAX_LENGTH_TEXT().call();
 }
 
-export function getMaxLengthSubject(web3: Web3): number | StatusMessage {
+export async function getMaxLengthSubject(web3: Web3): Promise<number | StatusMessage> {
   const contract = getPrivateMessageStoreContract(web3);
-  return isStatusMessage(contract) ? contract : contract.methods.MAX_LENGTH_SUBJECT();
+  return isStatusMessage(contract) ? contract : await contract.methods.MAX_LENGTH_SUBJECT().call();
 }
 
 type SendArgs = {
@@ -44,42 +45,25 @@ type SendArgs = {
   contentHash: string;
 };
 
-function checkTexts(
-  web3: Web3,
-  subjectInbox: string,
-  textInBox: string,
-  subjectOutBox: string,
-  textOutBox: string
-): StatusMessage | null {
-  if (subjectInbox.length >= getMaxLengthSubject(web3)) {
-    return errorMessage('Message (subjectInbox) is to long!');
-  } else if (textInBox.length >= getMaxLengthText(web3)) {
-    return errorMessage('Message (textInBox) is to long!');
-  } else if (subjectOutBox.length >= getMaxLengthSubject(web3)) {
-    return errorMessage('Message (subjectOutBox) is to long!');
-  } else if (textOutBox.length >= getMaxLengthText(web3)) {
-    return errorMessage('Message (textOutBox) is to long!');
-  }
-  return null;
-}
-
 export async function PrivateMessageStore_send(
   web3: Web3,
   from: string,
   { address, subjectInBox, textInBox, subjectOutBox, textOutBox, contentHash }: SendArgs
-): Promise<string | StatusMessage> {
+): Promise<void | StatusMessage> {
   try {
-    const checkResults = checkTexts(web3, subjectInBox, textInBox, subjectOutBox, textOutBox);
-    if (checkResults) {
-      return checkResults;
-    }
+    //const checkResults = checkTexts(web3, subjectInBox, textInBox, subjectOutBox, textOutBox);
+    // if (isStatusMessage(checkResults)) {
+    //   return checkResults;
+    // }
     const contract = getPrivateMessageStoreContract(web3);
     if (isStatusMessage(contract)) {
       return contract;
     }
-    return await contract.methods
+    const tx = await contract.methods
       .send(address, subjectInBox, textInBox, subjectOutBox, textOutBox, contentHash)
-      .call({ from });
+      .send({ from });
+    console.debug('tx', tx);
+    return;
   } catch (e) {
     console.error('PrivateMessageStore_send failed', e);
     return errorMessage('Could not call PrivateMessageStore_send', e);
@@ -97,6 +81,63 @@ export async function PrivateMessageStore_lenInBox(web3: Web3, from: string): Pr
   } catch (e) {
     console.error('PrivateMessageStore_lenInBox failed', e);
     return errorMessage('Could not call PrivateMessageStore_lenInBox', e);
+  }
+}
+
+export async function PrivateMessageStore_confirm(
+  web3: Web3,
+  from: string,
+  index: number
+): Promise<void | StatusMessage> {
+  try {
+    const contract = getPrivateMessageStoreContract(web3);
+    if (isStatusMessage(contract)) {
+      return contract;
+    }
+    const tx = await contract.methods.confirm(index).send({ from });
+    console.debug(tx);
+  } catch (e) {
+    console.error('PrivateMessageStore_confirm failed', e);
+    return errorMessage('Could not call PrivateMessageStore_confirm', e);
+  }
+}
+
+type ReplyArgs = {
+  address: string;
+  replySubjectInBox: string;
+  replyTextInBox: string;
+  replySubjectOutBox: string;
+  replyTextOutBox: string;
+  contentHash: string;
+  replyIndex: number;
+};
+
+export async function PrivateMessageStore_reply(
+  web3: Web3,
+  from: string,
+  {
+    address,
+    replySubjectInBox,
+    replyTextInBox,
+    replySubjectOutBox,
+    replyTextOutBox,
+    contentHash,
+    replyIndex
+  }: ReplyArgs
+): Promise<void | StatusMessage> {
+  try {
+    const contract = getPrivateMessageStoreContract(web3);
+    if (isStatusMessage(contract)) {
+      return contract;
+    }
+    const tx = await contract.methods
+      .reply(address, replySubjectInBox, replyTextInBox, replySubjectOutBox, replyTextOutBox, contentHash, replyIndex)
+      .send({ from });
+    console.debug('tx', tx);
+    return;
+  } catch (e) {
+    console.error('PrivateMessageStore_reply failed', e);
+    return errorMessage('Could not call PrivateMessageStore_reply', e);
   }
 }
 
@@ -174,19 +215,18 @@ export async function PrivateMessageStore_getInBox(
     if (isStatusMessage(contract)) {
       return contract;
     }
-    const entry = await contract.methods.get(index).call({ from });
-    let i = 0;
+    const entry = await contract.methods.getInBox(index).call({ from });
     return {
-      sender: entry[i++],
-      indexOutBox: +entry[i++],
-      subjectInBox: entry[i++],
-      textInBox: entry[i++],
-      inserted: +entry[i++],
-      confirmedTime: +entry[i++],
-      confirmed: entry[i++],
-      hasReply: entry[i++],
-      replyIndex: entry[i++],
-      contentHash: entry[i++],
+      sender: entry.sender,
+      indexOutBox: +entry.indexInBox,
+      subjectInBox: entry.subjectInBox,
+      textInBox: entry.textInBox,
+      inserted: +entry.inserted,
+      confirmedTime: +entry.confirmedTime,
+      confirmed: entry.confirmed,
+      hasReply: entry.hasReply,
+      replyIndex: +entry.replyIndex,
+      contentHash: entry.contentHash,
       index
     };
   } catch (e) {
@@ -226,3 +266,63 @@ export function getPrivateMessageStoreContractAddressByNetworkId(networkId: numb
       return;
   }
 }
+
+// ENCRYPT MESSAGE
+
+export type EncryptMessageArgs = {
+  web3: Web3;
+  address: string;
+  publicKey: string;
+  subject: string;
+  text: string;
+  nonce: number;
+};
+
+export type EncryptMessageResult = { subjectEnc: string; textEnc: string };
+
+export async function encryptMessage({
+  web3,
+  address,
+  publicKey,
+  subject,
+  text,
+  nonce
+}: EncryptMessageArgs): Promise<EncryptMessageResult | StatusMessage> {
+  const enc = encryptContent(publicKey, { subject, text, nonce });
+  const subjectMax = await getMaxLengthSubject(web3);
+  if (isStatusMessage(subjectMax)) {
+    return subjectMax;
+  }
+  const textMax = await getMaxLengthText(web3);
+  if (isStatusMessage(textMax)) {
+    return textMax;
+  }
+  const subjectEnc = enc.substring(0, +subjectMax);
+  const textEnc = enc.substring(+subjectMax, +textMax);
+  return { subjectEnc, textEnc };
+}
+
+// DECRYPT MESSAGE
+
+export type DecryptMessageArgs = {
+  address: string;
+  subjectEnc: string;
+  textEnc: string;
+};
+export type DecryptMessageResult = { subject: string; text: string };
+
+export async function decryptMessage({
+  address,
+  subjectEnc,
+  textEnc
+}: DecryptMessageArgs): Promise<DecryptMessageResult | StatusMessage> {
+  try {
+    const enc = subjectEnc + textEnc;
+    return await decryptContent<DecryptMessageResult>(address, enc);
+  } catch (e) {
+    return errorMessage('Error while decrypting Message', e);
+  }
+}
+
+export const web3ContentHash = (web3: Web3, subject: string, text: string): string =>
+  web3.utils.keccak256(subject + '-' + text);

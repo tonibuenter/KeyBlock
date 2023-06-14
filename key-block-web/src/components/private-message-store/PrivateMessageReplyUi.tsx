@@ -1,101 +1,79 @@
 import * as React from 'react';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { AddressBookEntry, errorMessage, infoMessage, isStatusMessage, NotifyFun, StatusMessage } from '../../types';
-import { Autocomplete, Box, Stack } from '@mui/material';
-import { dispatchLoading, useAddressBook, usePublicAddress, usePublicKeyHolder, useWeb3 } from '../../redux-support';
+import { errorMessage, infoMessage, isStatusMessage, NotifyFun, StatusMessage } from '../../types';
+import { Box, Paper, Stack } from '@mui/material';
+import { dispatchLoading, usePublicAddress, usePublicKeyHolder, useWeb3 } from '../../redux-support';
 import { StatusMessageElement, web3Nonce } from '../utils';
-import { displayAddress } from '../../utils/crypt-util';
 import {
   encryptMessage,
-  PrivateMessageStore_send,
+  PrivateMessageStore_reply,
   web3ContentHash
 } from '../../contracts/private-message-store/PrivateMessageStore-support';
 import { PublicKeyStore_get } from '../../contracts/public-key-store/PublicKeyStore-support';
+import { Message } from './PrivateMessageStoreUi';
+import { AddressDisplayWithAddressBook } from './AddressDisplayWithAddressBook';
 import Web3 from 'web3';
 
-const receiverDisplay = (e: AddressBookEntry): string => `${e.name} ${displayAddress(e.address)}`;
-
-export function PrivateMessageNewUi({ done }: { done: NotifyFun }) {
+export function PrivateMessageReplyUi({ messageToReply, done }: { messageToReply: Message; done: NotifyFun }) {
   const web3 = useWeb3();
   const publicAddress = usePublicAddress();
   const { publicKey } = usePublicKeyHolder() || {};
-  const addressBook = useAddressBook();
-  const [receiverContent, setReceiverContent] = useState('');
-  const [receiver, setReceiver] = useState('');
-  const [subject, setSubject] = useState('');
+  const [subject, setSubject] = useState('Re:' + messageToReply.subject);
   const [text, setText] = useState('');
   const [statusMessage, setStatusMessage] = useState<StatusMessage | undefined>();
 
-  useEffect(() => {
-    const index = addressBook.findIndex((e) => receiverDisplay(e) === receiverContent);
-    console.debug('index ', index, 'receiverContent', receiverContent, 'element 1', addressBook[1].name);
-    setReceiver(index === -1 ? receiverContent : addressBook[index].address);
-  }, [receiverContent, addressBook]);
-
   if (!web3 || !publicAddress || !publicKey) {
-    console.error(`Web3, publicAddress or publicKey is missing. Can not open New Private Message!`);
+    console.error(`Web3, publicAddress or publicKey is missing. Can not open Private Message Reply!`);
     return <></>;
   }
 
   return (
     <Dialog open={true} onClose={done} fullWidth={true} maxWidth={'md'}>
       <DialogTitle>
-        <Stack direction="row" justifyContent="space-between" alignItems="baseline" spacing={2}>
-          <Box>New Message</Box>
+        <Stack justifyContent="space-between" alignItems="baseline" spacing={2}>
+          <Box key={'title'}>Reply to Message</Box>
         </Stack>
       </DialogTitle>
       <DialogContent>
         <Stack spacing={4}>
-          <Autocomplete
-            onChange={(e: any, newValue) => {
-              console.debug(e.target.value, 'new value', newValue);
-              setReceiverContent((newValue ?? '').toString());
-            }}
-            onInputChange={(event, newInputValue) => {
-              setReceiverContent((newInputValue || '').toString());
-            }}
-            freeSolo
-            options={addressBook.map((e) => receiverDisplay(e))}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                margin="dense"
-                variant="standard"
-                label="Receiver"
-                helperText={
-                  <Box component={'span'} sx={{ color: 'darkgreen', fontStyle: 'italic', fontWeight: '800' }}>
-                    {receiver}
-                  </Box>
-                }
-              />
-            )}
-          ></Autocomplete>
-
+          <Paper variant={'outlined'} square={true} sx={{ padding: '1em' }}>
+            <Stack spacing={2}>
+              <Box key={'subject-disp'} sx={{ fontWeight: 600 }}>
+                {messageToReply.subject}
+              </Box>
+              <Box key={'subject'}>{messageToReply.text}</Box>
+            </Stack>
+          </Paper>
+          <Box key={'to'}>
+            Reply to:
+            <AddressDisplayWithAddressBook address={messageToReply.sender} />
+          </Box>
           <TextField
-            key={'subject'}
+            key={'reply-subject'}
             autoFocus
             margin="dense"
             value={subject}
-            label="Subject"
+            label="Reply Subject"
             fullWidth
             onChange={(e: ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
             variant="standard"
           />
           <TextField
-            key={'text'}
+            key={'reply-text'}
             autoFocus
             margin="dense"
             value={text}
-            label="Message Text"
+            label="Reply Text"
             fullWidth
             onChange={(e: ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
             variant="standard"
+            multiline
           />
           <StatusMessageElement statusMessage={statusMessage} />
         </Stack>
@@ -105,24 +83,26 @@ export function PrivateMessageNewUi({ done }: { done: NotifyFun }) {
           <StatusMessageElement statusMessage={statusMessage} onClose={() => setStatusMessage(undefined)} />
           <Stack direction="row" justifyContent="flex-end" alignItems="center" spacing={2}>
             <Button
+              key={'send-reply'}
               disabled={!subject || !text}
               onClick={() => {
-                sendPrivateMessage({
+                replyPrivateMessage({
                   web3,
                   publicAddress,
                   publicKey,
-                  receiver,
+                  receiver: messageToReply.sender,
                   subject,
-                  text
-                })
-                  .catch(console.error)
-                  .catch(console.error);
+                  text,
+                  replyIndex: messageToReply.index
+                }).catch(console.error);
               }}
             >
-              Send Message
+              Send Reply
             </Button>
 
-            <Button onClick={done}>Close</Button>
+            <Button key={'close'} onClick={done}>
+              Close
+            </Button>
           </Stack>
         </Stack>
       </DialogActions>
@@ -130,23 +110,25 @@ export function PrivateMessageNewUi({ done }: { done: NotifyFun }) {
   );
 }
 
-export type SendPrivateMessageArgs = {
+export type ReplyPrivateMessageArgs = {
   web3: Web3;
   publicAddress: string;
   publicKey: string;
   receiver: string;
   subject: string;
   text: string;
+  replyIndex: number;
 };
 
-export async function sendPrivateMessage({
+export async function replyPrivateMessage({
   web3,
   publicAddress,
   publicKey,
   receiver,
   subject,
-  text
-}: SendPrivateMessageArgs) {
+  text,
+  replyIndex
+}: ReplyPrivateMessageArgs): Promise<StatusMessage> {
   if (publicAddress && web3 !== undefined && publicKey) {
     dispatchLoading('Encrypt Message...');
     //setStatusMessage(infoMessage('Saving... Please confirm/reject MetaMask dialog!'));
@@ -179,13 +161,14 @@ export async function sendPrivateMessage({
         return inBox;
       }
       const contentHash = web3ContentHash(web3, subject, text);
-      const res = await PrivateMessageStore_send(web3, publicAddress, {
+      const res = await PrivateMessageStore_reply(web3, publicAddress, {
         address: receiver,
-        subjectInBox: inBox.subjectEnc,
-        textInBox: inBox.textEnc,
-        subjectOutBox: outBox.subjectEnc,
-        textOutBox: outBox.textEnc,
-        contentHash
+        replySubjectInBox: inBox.subjectEnc,
+        replyTextInBox: inBox.textEnc,
+        replySubjectOutBox: outBox.subjectEnc,
+        replyTextOutBox: outBox.textEnc,
+        contentHash,
+        replyIndex
       });
       if (isStatusMessage(res)) {
         return res;

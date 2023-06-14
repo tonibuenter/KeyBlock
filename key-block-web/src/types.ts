@@ -3,6 +3,7 @@ import Web3 from 'web3';
 export function isError(e: any): e is Error {
   return e && e.message;
 }
+export type AddressBookEntry = { address: string; name: string };
 
 export interface KeyBlockReduxState {
   web3?: Web3;
@@ -11,6 +12,7 @@ export interface KeyBlockReduxState {
   networkId?: number;
   publicKeyHolder?: PublicKeyHolder;
   loading?: string;
+  addressBook?: AddressBookEntry[];
 }
 
 export declare type StatusMessageStatus = 'success' | 'info' | 'warning' | 'error';

@@ -2,6 +2,7 @@ import { StatusMessage } from '../types';
 import React, { FC } from 'react';
 import { Alert, AlertTitle, Box } from '@mui/material';
 import { dispatchStatusMessage, useStatusMessage } from '../redux-support';
+import Web3 from 'web3';
 
 export type StatusMessageProps = {
   statusMessage?: StatusMessage;
@@ -49,4 +50,8 @@ export function DynStatusMessageElement() {
     return <StatusMessageElement statusMessage={statusMessage} onClose={() => dispatchStatusMessage()} />;
   }
   return <></>;
+}
+
+export async function web3Nonce(web3: Web3, accountAddress: string): Promise<number> {
+  return await web3.eth.getTransactionCount(accountAddress);
 }

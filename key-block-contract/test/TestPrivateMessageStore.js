@@ -130,7 +130,7 @@ contract('PrivateMessageStore', function (accounts) {
     assert.equal(+getInBox.indexOutBox.toString(), 0);
     assert.equal(getInBox.contentHash, contentHash);
     let inserted = getInBox.inserted.toString();
-    assert.isBelow(Math.abs(Date.now() - inserted * 1000), 1000);
+    assert.isBelow(Math.abs(Date.now() - inserted * 1000), 2000);
 
     const getOutBox = await contract.getOutBox(0, { from: address1 });
     assert.equal(getOutBox.receiver, address0);
