@@ -141,20 +141,6 @@ export async function PrivateMessageStore_reply(
   }
 }
 
-export async function PrivateMessageStore_lenOutBox(web3: Web3, from: string): Promise<number | StatusMessage> {
-  try {
-    const contract = getPrivateMessageStoreContract(web3);
-    if (isStatusMessage(contract)) {
-      return contract;
-    }
-    const res0 = await contract.methods.lenOutBox().call({ from });
-    return +res0;
-  } catch (e) {
-    console.error('PrivateMessageStore_lenInBox failed', e);
-    return errorMessage('Could not call PrivateMessageStore_lenInBox', e);
-  }
-}
-
 export type MessageInBox = {
   sender: string;
   indexOutBox: number;
@@ -166,14 +152,6 @@ export type MessageInBox = {
   confirmed: boolean;
   hasReply: boolean;
   replyIndex: number;
-  contentHash: string;
-};
-
-export type MessageOutBox = {
-  receiver: string;
-  indexInBox: number;
-  subjectOutBox: string;
-  textOutBox: string;
   contentHash: string;
 };
 
@@ -232,6 +210,64 @@ export async function PrivateMessageStore_getInBox(
   } catch (e) {
     console.error('PrivateMessageStore_getInBox failed', e);
     return errorMessage('Could not get in box entry', e);
+  }
+}
+
+export async function PrivateMessageStore_lenOutBox(web3: Web3, from: string): Promise<number | StatusMessage> {
+  try {
+    const contract = getPrivateMessageStoreContract(web3);
+    if (isStatusMessage(contract)) {
+      return contract;
+    }
+    const res0 = await contract.methods.lenOutBox().call({ from });
+    return +res0;
+  } catch (e) {
+    console.error('PrivateMessageStore_lenOutBox failed', e);
+    return errorMessage('Could not call PrivateMessageStore_lenOutBox', e);
+  }
+}
+
+export type GetOutBoxResult = {
+  receiver: string;
+  indexInBox: number;
+  subjectOutBox: string;
+  textOutBox: string;
+  contentHash: string;
+  inserted: number;
+  confirmedTime: number;
+  confirmed: boolean;
+  hasReply: boolean;
+  replyIndex: number;
+  index: number;
+};
+
+export async function PrivateMessageStore_getOutBox(
+  web3: Web3,
+  from: string,
+  index: number
+): Promise<GetOutBoxResult | StatusMessage> {
+  try {
+    const contract = getPrivateMessageStoreContract(web3);
+    if (isStatusMessage(contract)) {
+      return contract;
+    }
+    const entry = await contract.methods.getOutBox(index).call({ from });
+    return {
+      receiver: entry.receiver,
+      indexInBox: +entry.indexInBox,
+      subjectOutBox: entry.subjectOutBox,
+      textOutBox: entry.textOutBox,
+      inserted: +entry.inserted,
+      confirmedTime: +entry.confirmedTime,
+      confirmed: entry.confirmed,
+      hasReply: entry.hasReply,
+      replyIndex: +entry.replyIndex,
+      contentHash: entry.contentHash,
+      index
+    };
+  } catch (e) {
+    console.error('PrivateMessageStore_getOutBox failed', e);
+    return errorMessage('Could not get out box entry', e);
   }
 }
 

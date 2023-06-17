@@ -228,14 +228,34 @@
           "type": "string"
         },
         {
+          "internalType": "bytes32",
+          "name": "contentHash",
+          "type": "bytes32"
+        },
+        {
           "internalType": "uint256",
           "name": "inserted",
           "type": "uint256"
         },
         {
-          "internalType": "bytes32",
-          "name": "contentHash",
-          "type": "bytes32"
+          "internalType": "uint256",
+          "name": "confirmedTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "confirmed",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "hasReply",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "replyIndex",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",

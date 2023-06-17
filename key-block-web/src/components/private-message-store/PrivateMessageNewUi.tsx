@@ -47,7 +47,7 @@ export function PrivateMessageNewUi({ done }: { done: NotifyFun }) {
     <Dialog open={true} onClose={done} fullWidth={true} maxWidth={'md'}>
       <DialogTitle>
         <Stack direction="row" justifyContent="space-between" alignItems="baseline" spacing={2}>
-          <Box>New Message</Box>
+          <Box>New OutMessage</Box>
         </Stack>
       </DialogTitle>
       <DialogContent>
@@ -92,7 +92,7 @@ export function PrivateMessageNewUi({ done }: { done: NotifyFun }) {
             autoFocus
             margin="dense"
             value={text}
-            label="Message Text"
+            label="OutMessage Text"
             fullWidth
             onChange={(e: ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
             variant="standard"
@@ -119,7 +119,7 @@ export function PrivateMessageNewUi({ done }: { done: NotifyFun }) {
                   .catch(console.error);
               }}
             >
-              Send Message
+              Send OutMessage
             </Button>
 
             <Button onClick={done}>Close</Button>
@@ -190,7 +190,7 @@ export async function sendPrivateMessage({
       if (isStatusMessage(res)) {
         return res;
       }
-      return infoMessage(`Message ${subject} successfully sent!`);
+      return infoMessage(`OutMessage ${subject} successfully sent!`);
     } catch (e) {
       return errorMessage('Save not successful!', e);
     } finally {

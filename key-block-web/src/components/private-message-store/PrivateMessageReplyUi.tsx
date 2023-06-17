@@ -16,9 +16,9 @@ import {
   web3ContentHash
 } from '../../contracts/private-message-store/PrivateMessageStore-support';
 import { PublicKeyStore_get } from '../../contracts/public-key-store/PublicKeyStore-support';
-import { Message } from './PrivateMessageStoreUi';
 import { AddressDisplayWithAddressBook } from './AddressDisplayWithAddressBook';
 import Web3 from 'web3';
+import { Message } from './private-message-store-types';
 
 export function PrivateMessageReplyUi({ messageToReply, done }: { messageToReply: Message; done: NotifyFun }) {
   const web3 = useWeb3();

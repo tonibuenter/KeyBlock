@@ -10,7 +10,7 @@ import { AppMenu } from './AppMenu';
 import KeyBlockTableUi from './key-block/KeyBlockTableUi';
 import { usePublicAddress } from '../redux-support';
 import { useEffect } from 'react';
-import PrivateMessageStoreUi from './private-message-store/PrivateMessageStoreUi';
+import { PrivateMessageStoreUi } from './private-message-store/PrivateMessageStoreUi';
 
 console.debug('process.env.PUBLIC_URL ', process.env.PUBLIC_URL);
 // const basename = process.env.PUBLIC_URL || '/';

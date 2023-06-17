@@ -5,7 +5,7 @@ contract AddressBook
 {
     uint256 public constant MAX_LENGTH_NAME = 256;
 
-    struct AddressEntry {
+    struct MainEntry {
         address address0;
         string name;
         uint256 inserted;
@@ -17,11 +17,13 @@ contract AddressBook
         string name;
         uint256 inserted;
                 uint256 state;
+        string uniqueName;
     }
 
 
-    mapping(address => AddressEntry[]) addressEntriesMap;
+    mapping(address => MainEntry[]) addressEntriesMap;
     mapping(address => OwnerEntry) ownerEntryMap;
+    mapping(string => address) uniqueNameOwnerMap;
 
 
 //    function checkContent(string memory _subjectInBox,
