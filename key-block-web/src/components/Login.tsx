@@ -165,7 +165,7 @@ async function getCurrentAddress(web3: Web3) {
 export async function getPublicKey64(web3: Web3, publicAddress: string): Promise<PublicKeyHolder> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let publicKey = await PublicKeyStore_getMine(web3, publicAddress);
-  let holder: HolderType = 'wallet';
+  let holder: HolderType = 'public-key-store';
   if (isStatusMessage(publicKey)) {
     console.log(`No Public Key Store contract for: ${publicAddress}`);
     publicKey = '';
@@ -176,7 +176,7 @@ export async function getPublicKey64(web3: Web3, publicAddress: string): Promise
       method: 'eth_getEncryptionPublicKey',
       params: [publicAddress]
     })) as string;
-    holder = 'public-key-store';
+    holder = 'wallet';
   }
   return { publicKey, holder };
 }

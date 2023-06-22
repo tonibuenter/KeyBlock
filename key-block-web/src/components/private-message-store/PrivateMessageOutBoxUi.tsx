@@ -14,10 +14,16 @@ import {
 } from '@mui/material';
 import { ChangeEvent, Fragment, useCallback, useEffect, useState } from 'react';
 import { errorMessage, infoMessage, isStatusMessage, StatusMessage } from '../../types';
-import { dispatchLoading, dispatchStatusMessage, useNetworkId, usePublicAddress, useWeb3 } from '../../redux-support';
+import {
+  dispatchLoading,
+  dispatchSnackbarMessage,
+  dispatchStatusMessage,
+  useNetworkId,
+  usePublicAddress,
+  useWeb3
+} from '../../redux-support';
 import { grey } from '@mui/material/colors';
 import { StatusMessageElement } from '../utils';
-import { getBlockchainByNetworkId, getContractAddressByNetworkId } from '../Web3InfoPage';
 import Web3 from 'web3';
 import {
   decryptMessage,
@@ -28,6 +34,7 @@ import {
 import moment from 'moment';
 import { AddressDisplayWithAddressBook } from './AddressDisplayWithAddressBook';
 import CheckIcon from '@mui/icons-material/Check';
+import { getNetworkInfo } from '../../contracts/network-info';
 
 type OutMessage = GetOutBoxResult & { subject?: string; text?: string; displayText?: boolean };
 type SetOutMessages = (setMessage: (messages: OutMessage[]) => OutMessage[]) => void;
@@ -62,14 +69,7 @@ export function PrivateMessageOutBoxUi() {
 
   const renderMessageOuBoxTable = useCallback(() => {
     let statusMessage: StatusMessage | undefined = undefined;
-    if (!getContractAddressByNetworkId(networkId)) {
-      statusMessage = infoMessage(`No contract for: ${getBlockchainByNetworkId(networkId || 0)}`);
-    } else if (numberOfEntries === -1) {
-      statusMessage = infoMessage(`Trying to read messages from: ${getBlockchainByNetworkId(networkId || 0)}`);
-    }
-    if (statusMessage) {
-      return <StatusMessageElement statusMessage={statusMessage} />;
-    }
+    const { name } = getNetworkInfo(networkId);
     const noMessages = numberOfEntries === 0;
     return (
       <TableContainer key="table" component={Paper}>
@@ -91,9 +91,7 @@ export function PrivateMessageOutBoxUi() {
           />
         </Stack>
         {noMessages ? (
-          <StatusMessageElement
-            statusMessage={infoMessage(`No sent messages found on: ${getBlockchainByNetworkId(networkId || 0)}`)}
-          />
+          <StatusMessageElement statusMessage={infoMessage(`No sent messages found on: ${name}`)} />
         ) : (
           <Table sx={{ minWidth: 800 }}>
             <TableHead>
@@ -216,7 +214,7 @@ function DecryptButton({ address, message, setMessages }: DecryptButtonProps) {
               textEnc: message.textOutBox
             });
             if (isStatusMessage(inBoxOpened)) {
-              console.debug(inBoxOpened);
+              dispatchSnackbarMessage(inBoxOpened);
             } else {
               setMessages((messages: OutMessage[]) => {
                 const m: OutMessage[] = [...messages];

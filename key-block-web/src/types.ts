@@ -3,11 +3,13 @@ import Web3 from 'web3';
 export function isError(e: any): e is Error {
   return e && e.message;
 }
+
 export type AddressBookEntry = { address: string; name: string };
 
 export interface KeyBlockReduxState {
   web3?: Web3;
   statusMessage?: StatusMessage;
+  snackbarMessage?: SnackbarMessage;
   publicAddress?: string;
   networkId?: number;
   publicKeyHolder?: PublicKeyHolder;
@@ -25,7 +27,7 @@ export declare type StatusMessage = {
 };
 export const errorMessage = (userMessage: string, error: Error | string | unknown = ''): StatusMessage => {
   const status = 'error';
-  let systemMessage = '';
+  let systemMessage;
   if (!error) {
     systemMessage = '';
   } else if (isError(error)) {
@@ -64,3 +66,14 @@ export interface PublicKeyHolder {
   publicKey: string;
   holder: HolderType;
 }
+
+export type SnackbarMessage = StatusMessage & { duration: number; counter: number };
+
+export type NetworkInfo = {
+  name: string;
+  chainId: number;
+  currencySymbol: string;
+  blockExplorerUrl: string;
+  rpcUrl: string;
+  PostFix: string;
+};

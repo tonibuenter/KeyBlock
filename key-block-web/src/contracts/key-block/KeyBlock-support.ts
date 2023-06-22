@@ -3,28 +3,31 @@ import { Contract } from 'web3-eth-contract';
 import { errorMessage, isStatusMessage, StatusMessage } from '../../types';
 import moment from 'moment';
 import { getNetworkId } from '../../redux-support';
-import { getBlockchainByNetworkId, getContractAddressByNetworkId } from '../../components/Web3InfoPage';
 
-const { abi } = require('./KeyBlock.json');
+import { keyBlockAbi } from './KeyBlock-abi';
+import { ContractName, getContractAddress, getNetworkInfo } from '../network-info';
+
+type KbContractType = typeof keyBlockAbi;
+
 let currentNetworkId = 0;
 
-let KeyBlockContract: Contract | undefined;
+let KeyBlockContract: Contract<KbContractType> | undefined;
 
-export function getKeyBlockContract(web3: Web3): Contract | StatusMessage {
+export function getKeyBlockContract(web3: Web3): Contract<KbContractType> | StatusMessage {
   const networkId = getNetworkId();
-  if (!getContractAddressByNetworkId(networkId)) {
-    return errorMessage(`No contract found for ${getBlockchainByNetworkId(networkId)}`);
-  }
   if (networkId !== currentNetworkId) {
     currentNetworkId = networkId;
-    const contractAddress = getContractAddressByNetworkId(currentNetworkId);
-    KeyBlockContract = new web3.eth.Contract(abi, contractAddress);
   }
-  // if (!KeyBlockContract) {
-  //   KeyBlockContract = new web3.eth.Contract(abi, contractAddress);
-  // }
+  const networkInfo = getNetworkInfo(networkId);
+  const contractAddress = getContractAddress(currentNetworkId, ContractName.KeyBlock);
+
+  if (!contractAddress) {
+    return errorMessage(`No contract found on ${networkInfo.name} for Key Block`);
+  }
+
+  KeyBlockContract = new web3.eth.Contract(keyBlockAbi, contractAddress, web3);
   if (!KeyBlockContract) {
-    throw new Error(`No KeyBlock contract for this network ${getBlockchainByNetworkId(networkId)}`);
+    throw new Error(`No PublicKeyStore contract for this network ${networkInfo.name}`);
   }
   return KeyBlockContract;
 }
@@ -68,7 +71,8 @@ export async function KeyBlock_add(
     if (isStatusMessage(contract)) {
       return contract;
     }
-    return await contract.methods.add(name, secretContent, inserted).send({ from });
+    await contract.methods.add(name, secretContent, inserted).send({ from });
+    return 'ok';
   } catch (e) {
     console.error('KeyBlock_add failed', e);
     return errorMessage('Could not add KeyBlock entry', e);
@@ -88,7 +92,8 @@ export async function KeyBlock_set(
     if (isStatusMessage(contract)) {
       return contract;
     }
-    return await contract.methods.set(index, name, secretContent, inserted).send({ from });
+    await contract.methods.set(index, name, secretContent, inserted).send({ from });
+    return 'ok';
   } catch (e) {
     console.error('KeyBlock_set failed', e);
     return errorMessage('Could not call save Entry', e);

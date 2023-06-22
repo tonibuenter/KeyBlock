@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { errorMessage, infoMessage, isStatusMessage, NotifyFun, StatusMessage } from '../../types';
 import { Box, Paper, Stack } from '@mui/material';
 import { dispatchLoading, usePublicAddress, usePublicKeyHolder, useWeb3 } from '../../redux-support';
-import { StatusMessageElement, web3Nonce } from '../utils';
+import { StatusMessageElement, nNonce } from '../utils';
 import {
   encryptMessage,
   PrivateMessageStore_reply,
@@ -137,7 +137,7 @@ export async function replyPrivateMessage({
       if (isStatusMessage(receiverPublicKey)) {
         return receiverPublicKey;
       }
-      const nonce = await web3Nonce(web3, publicAddress);
+      const nonce = nNonce();
       const outBox = await encryptMessage({
         web3,
         address: publicAddress,
