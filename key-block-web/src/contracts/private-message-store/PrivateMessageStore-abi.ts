@@ -1,5 +1,3 @@
-import { keyBlockAbi } from '../key-block/KeyBlock-abi';
-
 export const privateMessageStoreAbi = [
   {
     inputs: [],
