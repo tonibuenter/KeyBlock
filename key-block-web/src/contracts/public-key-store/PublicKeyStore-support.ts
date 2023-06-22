@@ -1,24 +1,28 @@
 import Web3 from 'web3';
-import { Contract } from 'web3-eth-contract';
-import { errorMessage, isStatusMessage, StatusMessage } from '../../types';
-import { getNetworkId } from '../../redux-support';
-import { getBlockchainByNetworkId } from '../../components/Web3InfoPage';
+import {Contract} from 'web3-eth-contract';
+import {errorMessage, isStatusMessage, StatusMessage} from '../../types';
+import {getNetworkId} from '../../redux-support';
+import {getBlockchainByNetworkId} from '../../components/Web3InfoPage';
+import {abi} from './PublicKeyStore';
 
-const { abi } = require('./PublicKeyStore.json');
 let currentNetworkId = 0;
 
-let PublicKeyStoreContract: Contract | undefined;
 
-export function getPublicKeyStoreContract(web3: Web3): Contract | StatusMessage {
+type ContractType = typeof abi;
+
+let PublicKeyStoreContract: Contract<ContractType> | undefined;
+
+export function getPublicKeyStoreContract(web3: Web3): Contract<ContractType> | StatusMessage {
   const networkId = getNetworkId();
-  if (!getPublicKeyStoreContractAddressByNetworkId(networkId)) {
-    return errorMessage(`No contract found for ${getBlockchainByNetworkId(networkId)}`);
-  }
   if (networkId !== currentNetworkId) {
     currentNetworkId = networkId;
-    const contractAddress = getPublicKeyStoreContractAddressByNetworkId(currentNetworkId);
-    PublicKeyStoreContract = new web3.eth.Contract(abi, contractAddress);
   }
+  const contractAddress = getPublicKeyStoreContractAddressByNetworkId(currentNetworkId);
+
+  if (!contractAddress) {
+    return errorMessage(`No contract found for ${getBlockchainByNetworkId(networkId)}`);
+  }
+  PublicKeyStoreContract = new Contract(abi, contractAddress, web3);
   if (!PublicKeyStoreContract) {
     throw new Error(`No PublicKeyStore contract for this network ${getBlockchainByNetworkId(networkId)}`);
   }
@@ -31,7 +35,8 @@ export async function PublicKeyStore_getMine(web3: Web3, from: string): Promise<
     if (isStatusMessage(contract)) {
       return contract;
     }
-    return await contract.methods.getMine().call({ from });
+    const r = await contract.methods.getMine().call({from})
+    return r as any;
   } catch (e) {
     console.error('PublicKeyStore_getMine failed', e);
     return errorMessage('Could not call PublicKeyStore_getMine', e);
@@ -44,7 +49,8 @@ export async function PublicKeyStore_get(web3: Web3, from: string, address: stri
     if (isStatusMessage(contract)) {
       return contract;
     }
-    return await contract.methods.get(address).call({ from });
+    const res = await contract.methods.get(address).call({from});
+    return res.toString();
   } catch (e) {
     console.error('PublicKeyStore_get failed', e);
     return errorMessage('Could not get entry', e);
@@ -57,7 +63,8 @@ export async function PublicKeyStore_set(web3: Web3, from: string, publicKey: st
     if (isStatusMessage(contract)) {
       return contract;
     }
-    return await contract.methods.set(publicKey).send({ from });
+    await contract.methods.set(publicKey).send({from});
+    return 'ok'
   } catch (e) {
     console.error('PublicKeyStore_set failed', e);
     return errorMessage('Could not call save Entry', e);

@@ -18,7 +18,7 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
   const [loading, setLoading] = useState(false);
   const [balanceWei, setBalanceWei] = useState('');
   const [chainId, setChainId] = useState(-1);
-  const [gasPriceWei, setGasPriceWei] = useState('');
+  const [gasPriceWei, setGasPriceWei] = useState(-1);
 
   useEffect(() => {
     const load = async () => {
@@ -28,9 +28,9 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
           const balanceWei0 = await web3.eth.getBalance(publicAddress);
           setBalanceWei(balanceWei0.toString());
           const chainId0 = await web3.eth.getChainId();
-          setChainId(chainId0);
+          setChainId(+chainId0.toString());
           const gasPriceWei0 = await web3.eth.getGasPrice();
-          setGasPriceWei(gasPriceWei0);
+          setGasPriceWei(+gasPriceWei0.toString());
         } catch (e) {
           console.error(e);
         } finally {

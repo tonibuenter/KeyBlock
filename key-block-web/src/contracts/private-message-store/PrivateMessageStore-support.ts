@@ -5,12 +5,15 @@ import { getNetworkId } from '../../redux-support';
 import { getBlockchainByNetworkId } from '../../components/Web3InfoPage';
 import { decryptContent, encryptContent } from '../../utils/crypt-util';
 
-const { abi } = require('./PrivateMessageStore.json');
+import {abi} from './PrivateMessageStore';
+
+type PmsContractType = typeof abi;
+
 let currentNetworkId = 0;
 
-let PrivateMessageStoreContract: Contract | undefined;
+let PrivateMessageStoreContract: Contract<PmsContractType> | undefined;
 
-export function getPrivateMessageStoreContract(web3: Web3): Contract | StatusMessage {
+export function getPrivateMessageStoreContract(web3: Web3): Contract<PmsContractType> | StatusMessage {
   const networkId = getNetworkId();
   if (!getPrivateMessageStoreContractAddressByNetworkId(networkId)) {
     return errorMessage(`No contract found for ${getBlockchainByNetworkId(networkId)}`);
@@ -28,12 +31,12 @@ export function getPrivateMessageStoreContract(web3: Web3): Contract | StatusMes
 
 export async function getMaxLengthText(web3: Web3): Promise<number | StatusMessage> {
   const contract = getPrivateMessageStoreContract(web3);
-  return isStatusMessage(contract) ? contract : await contract.methods.MAX_LENGTH_TEXT().call();
+  return isStatusMessage(contract) ? contract : Number.parseInt(await contract.methods.MAX_LENGTH_TEXT().call()||'0');
 }
 
 export async function getMaxLengthSubject(web3: Web3): Promise<number | StatusMessage> {
   const contract = getPrivateMessageStoreContract(web3);
-  return isStatusMessage(contract) ? contract : await contract.methods.MAX_LENGTH_SUBJECT().call();
+  return isStatusMessage(contract) ? contract : Number.parseInt(await contract.methods.MAX_LENGTH_SUBJECT().call());
 }
 
 type SendArgs = {
@@ -77,7 +80,7 @@ export async function PrivateMessageStore_lenInBox(web3: Web3, from: string): Pr
       return contract;
     }
     const res0 = await contract.methods.lenInBox().call({ from });
-    return +res0;
+    return Number.parseInt(res0.toString());
   } catch (e) {
     console.error('PrivateMessageStore_lenInBox failed', e);
     return errorMessage('Could not call PrivateMessageStore_lenInBox', e);
@@ -193,7 +196,7 @@ export async function PrivateMessageStore_getInBox(
     if (isStatusMessage(contract)) {
       return contract;
     }
-    const entry = await contract.methods.getInBox(index).call({ from });
+    const entry:any = await contract.methods.getInBox(index).call({ from });
     return {
       sender: entry.sender,
       indexOutBox: +entry.indexInBox,
@@ -220,7 +223,7 @@ export async function PrivateMessageStore_lenOutBox(web3: Web3, from: string): P
       return contract;
     }
     const res0 = await contract.methods.lenOutBox().call({ from });
-    return +res0;
+    return Number.parseInt(res0.toString());
   } catch (e) {
     console.error('PrivateMessageStore_lenOutBox failed', e);
     return errorMessage('Could not call PrivateMessageStore_lenOutBox', e);
@@ -251,7 +254,7 @@ export async function PrivateMessageStore_getOutBox(
     if (isStatusMessage(contract)) {
       return contract;
     }
-    const entry = await contract.methods.getOutBox(index).call({ from });
+    const entry:any = await contract.methods.getOutBox(index).call({ from });
     return {
       receiver: entry.receiver,
       indexInBox: +entry.indexInBox,
