@@ -11,3 +11,5 @@ export async function wrapPromise<T>(promise: Promise<T>, loading = 'Loading...'
     dispatchLoading('');
   }
 }
+
+export function contractList(networkId: number) {}

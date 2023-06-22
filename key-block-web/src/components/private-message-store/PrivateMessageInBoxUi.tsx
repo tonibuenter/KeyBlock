@@ -13,11 +13,17 @@ import {
   useTheme
 } from '@mui/material';
 import { ChangeEvent, Fragment, useCallback, useEffect, useState } from 'react';
-import { errorMessage, infoMessage, isStatusMessage, StatusMessage } from '../../types';
-import { dispatchLoading, dispatchStatusMessage, useNetworkId, usePublicAddress, useWeb3 } from '../../redux-support';
+import { errorMessage, infoMessage, isStatusMessage } from '../../types';
+import {
+  dispatchLoading,
+  dispatchSnackbarMessage,
+  dispatchStatusMessage,
+  useNetworkId,
+  usePublicAddress,
+  useWeb3
+} from '../../redux-support';
 import { grey } from '@mui/material/colors';
 import { StatusMessageElement } from '../utils';
-import { getBlockchainByNetworkId, getContractAddressByNetworkId } from '../Web3InfoPage';
 import Web3 from 'web3';
 import {
   decryptMessage,
@@ -32,6 +38,7 @@ import { AddressDisplayWithAddressBook } from './AddressDisplayWithAddressBook';
 import CheckIcon from '@mui/icons-material/Check';
 import { PrivateMessageReplyUi } from './PrivateMessageReplyUi';
 import { Message } from './private-message-store-types';
+import { getNetworkInfo } from '../../contracts/network-info';
 
 type SetMessages = (setMessage: (messages: Message[]) => Message[]) => void;
 
@@ -70,16 +77,8 @@ function PrivateMessageInBoxUi() {
   );
 
   const renderMessageInBoxTable = useCallback(() => {
-    let statusMessage: StatusMessage | undefined = undefined;
-    if (!getContractAddressByNetworkId(networkId)) {
-      statusMessage = infoMessage(`No contract for: ${getBlockchainByNetworkId(networkId || 0)}`);
-    } else if (numberOfEntries === -1) {
-      statusMessage = infoMessage(`Trying to read messages from: ${getBlockchainByNetworkId(networkId || 0)}`);
-    }
-    if (statusMessage) {
-      return <StatusMessageElement statusMessage={statusMessage} />;
-    }
     const noMessages = numberOfEntries === 0;
+    const { name } = getNetworkInfo(networkId);
     return (
       <TableContainer key="table" component={Paper}>
         <Stack
@@ -107,9 +106,7 @@ function PrivateMessageInBoxUi() {
           </Button>
         </Stack>{' '}
         {noMessages ? (
-          <StatusMessageElement
-            statusMessage={infoMessage(`No messages found on: ${getBlockchainByNetworkId(networkId || 0)}`)}
-          />
+          <StatusMessageElement statusMessage={infoMessage(`No messages found on: ${name}`)} />
         ) : (
           <Table sx={{ minWidth: 800 }}>
             <TableHead>
@@ -157,7 +154,6 @@ function PrivateMessageInBoxUi() {
           </Table>
         )}
         <Stack key={'footer'} direction="row" justifyContent="flex-end" alignItems="center" spacing={2}>
-          <StatusMessageElement statusMessage={statusMessage} />
           <Button
             onClick={() => {
               refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setMessages).catch(
@@ -240,7 +236,7 @@ function DecryptButton({ address, message, setMessages }: DecryptButtonProps) {
               textEnc: message.textInBox
             });
             if (isStatusMessage(inBoxOpened)) {
-              console.debug(inBoxOpened);
+              dispatchSnackbarMessage(inBoxOpened);
             } else {
               setMessages((messages: Message[]) => {
                 const m: Message[] = [...messages];
@@ -293,7 +289,7 @@ function ConfirmButton({ web3, address, message }: ConfirmButtonProps) {
           try {
             const res = await PrivateMessageStore_confirm(web3, address, message.index);
             if (isStatusMessage(res)) {
-              console.debug(res);
+              dispatchSnackbarMessage(res);
             }
           } catch (e) {
             console.error(e);

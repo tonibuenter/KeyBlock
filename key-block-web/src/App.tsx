@@ -4,6 +4,7 @@ import { createContext, useMemo, useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { blue, orange } from '@mui/material/colors';
 import { AppRouter } from './components/AppRouter';
+import { Snackbar } from './components/Snackbar';
 
 export const ColorModeContext = createContext({
   toggleColorMode: () => {}
@@ -36,6 +37,13 @@ function App() {
               // The props to change the default for.
               arrow: true // No more ripple!
             }
+          },
+          MuiButton: {
+            styleOverrides: {
+              root: {
+                textTransform: 'none' // Disable the uppercase transformation globally
+              }
+            }
           }
         }
       }),
@@ -47,6 +55,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <Provider store={createReduxStore()}>
           <AppRouter />
+          <Snackbar />
         </Provider>
       </ThemeProvider>
     </ColorModeContext.Provider>

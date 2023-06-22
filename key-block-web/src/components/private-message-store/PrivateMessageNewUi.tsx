@@ -34,7 +34,6 @@ export function PrivateMessageNewUi({ done }: { done: NotifyFun }) {
 
   useEffect(() => {
     const index = addressBook.findIndex((e) => receiverDisplay(e) === receiverContent);
-    console.debug('index ', index, 'receiverContent', receiverContent, 'element 1', addressBook[1].name);
     setReceiver(index === -1 ? receiverContent : addressBook[index].address);
   }, [receiverContent, addressBook]);
 
@@ -54,7 +53,6 @@ export function PrivateMessageNewUi({ done }: { done: NotifyFun }) {
         <Stack spacing={4}>
           <Autocomplete
             onChange={(e: any, newValue) => {
-              console.debug(e.target.value, 'new value', newValue);
               setReceiverContent((newValue ?? '').toString());
             }}
             onInputChange={(event, newInputValue) => {

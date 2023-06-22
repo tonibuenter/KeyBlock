@@ -1,7 +1,7 @@
 import { ACTIONS, getStore } from './redux';
 import { useSelector } from 'react-redux';
 import Web3 from 'web3';
-import { AddressBookEntry, KeyBlockReduxState, PublicKeyHolder, StatusMessage } from './types';
+import { AddressBookEntry, KeyBlockReduxState, PublicKeyHolder, SnackbarMessage, StatusMessage } from './types';
 
 export const useLoading = () => useSelector((state: KeyBlockReduxState) => state.loading || '');
 
@@ -28,6 +28,19 @@ export const dispatchStatusMessage = (statusMessage?: StatusMessage) =>
     payload: { statusMessage }
   });
 
+export let SnackbarMessageCounter = 0;
+export const dispatchSnackbarMessage = (statusMessage: StatusMessage, duration: number = 3000) => {
+  SnackbarMessageCounter++;
+  const snackbarMessage: SnackbarMessage = { ...statusMessage, duration, counter: SnackbarMessageCounter };
+  getStore().dispatch({
+    type: ACTIONS.UPDATE,
+    payload: { snackbarMessage }
+  });
+};
+
+export const useSnackbarMessage = (): SnackbarMessage | undefined =>
+  useSelector((state: KeyBlockReduxState) => state.snackbarMessage);
+
 export const usePublicAddress = () => useSelector((state: KeyBlockReduxState) => state.publicAddress);
 
 export const dispatchPublicAddress = (publicAddress: string) =>
@@ -49,7 +62,6 @@ export const useNetworkId = (): number => useSelector((state: KeyBlockReduxState
 export const getNetworkId = (): number => getStore().getState().networkId ?? 0;
 
 export const dispatchNetworkId = (networkId: number) => {
-  console.debug('networkId', networkId);
   return getStore().dispatch({
     type: ACTIONS.UPDATE,
     payload: { networkId }

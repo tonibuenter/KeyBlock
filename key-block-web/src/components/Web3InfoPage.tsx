@@ -9,6 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { NotifyFun } from '../types';
 import { Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { useNetworkId, usePublicAddress, usePublicKeyHolder, useWeb3 } from '../redux-support';
+import { ContractName, getContractAddress, getNetworkInfo } from '../contracts/network-info';
 
 export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun }) {
   const networkId = useNetworkId();
@@ -45,6 +46,8 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
     return <></>;
   }
 
+  const { blockExplorerUrl = 'n/a', currencySymbol = 'n/a', name = 'n/a' } = getNetworkInfo(networkId) || {};
+
   return (
     <Dialog open={open} onClose={done} fullWidth={true} maxWidth={'md'}>
       <DialogTitle>Web3 Info Page</DialogTitle>
@@ -60,10 +63,13 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow key={'KeyBlock Contract Address'}>
-                  <TableCell key={'name'}>Contract Address</TableCell>
-                  <TableCell key={'value'}>{getContractAddressByNetworkId(networkId)}</TableCell>
-                </TableRow>
+                {Object.entries(ContractName).map(([key, value]) => (
+                  <TableRow key={key}>
+                    <TableCell key={'name'}>Contract : {key}</TableCell>
+                    <TableCell key={'value'}>{getContractAddress(networkId, value)}</TableCell>
+                  </TableRow>
+                ))}
+
                 <TableRow key={'Your Address'}>
                   <TableCell key={'name'}>Your Address</TableCell>
                   <TableCell key={'value'}>{publicAddress}</TableCell>
@@ -77,16 +83,14 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
                   <TableCell key={'value'}>{loading ? 'loading' : balanceWei}</TableCell>
                 </TableRow>
                 <TableRow key={'balance-ether'}>
-                  <TableCell key={'name'}>Balance {currencyByNetworkId(networkId)}</TableCell>
+                  <TableCell key={'name'}>Balance {currencySymbol}</TableCell>
                   <TableCell key={'value'}>
                     {loading || !web3 ? 'loading' : web3.utils.fromWei(balanceWei, 'ether').toString()}
                   </TableCell>
                 </TableRow>
                 <TableRow key={'balance-networkId'}>
                   <TableCell key={'name'}>Network Name: Id</TableCell>
-                  <TableCell key={'value'}>
-                    {loading || !web3 ? 'loading' : getBlockchainByNetworkId(networkId)}
-                  </TableCell>
+                  <TableCell key={'value'}>{loading || !web3 ? 'loading' : name}</TableCell>
                 </TableRow>
                 <TableRow key={'balance-chainId'}>
                   <TableCell key={'name'}>Chain Id</TableCell>
@@ -99,8 +103,8 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
                 <TableRow key={'block-scan'}>
                   <TableCell key={'name'}>Block Explorer</TableCell>
                   <TableCell key={'value'}>
-                    <a target={'_blank'} href={blockexplorerByNetworkId(networkId)} rel="noreferrer">
-                      {blockexplorerByNetworkId(networkId)}
+                    <a target={'_blank'} href={blockExplorerUrl} rel="noreferrer">
+                      {blockExplorerUrl}
                     </a>
                   </TableCell>
                 </TableRow>
@@ -115,141 +119,109 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
     </Dialog>
   );
 }
+//
+// export function getBlockchainByNetworkId(networkId: number | string): string {
+//   const id = +networkId || 0;
+//   switch (id) {
+//     case 1:
+//       return 'Ethereum Mainnet';
+//     case 3:
+//       return 'Ropsten';
+//     case 4:
+//       return 'Rinkeby';
+//     case 5:
+//       return 'Goerli';
+//     case 10:
+//       return 'Optimism Mainnet';
+//     case 42:
+//       return 'Kovan';
+//     case 56:
+//       return 'Binance Smart Chain (Mainnet)';
+//     case 97:
+//       return 'Binance Smart Chain (Testnet)';
+//     case 100:
+//       return 'xDai (Mainnet)';
+//     case 250:
+//       return 'Fantom Mainnet';
+//     case 4002:
+//       return 'Fantom Testnet';
+//     case 5777:
+//       return 'Local (Ganache): 5777';
+//     case 137:
+//       return 'Polygon Mainnet (Matic): 137';
+//     case 80001:
+//       return 'Polygon Mumbai Testnet: 80001';
+//     default:
+//       return id.toString();
+//   }
+// }
+//
+// export function currencyByNetworkId(networkId: number): string {
+//   switch (networkId) {
+//     case 1:
+//     case 3:
+//     case 4:
+//     case 5:
+//     case 42:
+//       return 'ETH';
+//     case 56:
+//     case 97:
+//       return 'BNB';
+//     case 100:
+//       return 'xDai';
+//     case 250:
+//     case 4002:
+//       return 'FTM';
+//     case 5777:
+//       return 'Ether';
+//     case 137:
+//     case 80001:
+//       return 'Matic';
+//     default:
+//       return '' + networkId;
+//   }
+// }
 
-export function getBlockchainByNetworkId(networkId: number | string): string {
-  const id = +networkId || 0;
-  switch (id) {
-    case 1:
-      return 'Ethereum Mainnet';
-    case 3:
-      return 'Ropsten';
-    case 4:
-      return 'Rinkeby';
-    case 5:
-      return 'Goerli';
-    case 10:
-      return 'Optimism Mainnet';
-    case 42:
-      return 'Kovan';
-    case 56:
-      return 'Binance Smart Chain (Mainnet)';
-    case 97:
-      return 'Binance Smart Chain (Testnet)';
-    case 100:
-      return 'xDai (Mainnet)';
-    case 250:
-      return 'Fantom Mainnet';
-    case 4002:
-      return 'Fantom Testnet';
-    case 5777:
-      return 'Local (Ganache): 5777';
-    case 137:
-      return 'Polygon Mainnet (Matic): 137';
-    case 80001:
-      return 'Polygon Mumbai Testnet: 80001';
-    default:
-      return id.toString();
-  }
-}
+// export function blockexplorerByNetworkId(networkId: number): string {
+//   const info = infoByNetworkId(networkId);
+//   return typeof info === 'string' ? info : info.explorerUrl || '';
+// }
 
-export function currencyByNetworkId(networkId: number): string {
-  switch (networkId) {
-    case 1:
-    case 3:
-    case 4:
-    case 5:
-    case 42:
-      return 'ETH';
-    case 56:
-    case 97:
-      return 'BNB';
-    case 100:
-      return 'xDai';
-    case 250:
-    case 4002:
-      return 'FTM';
-    case 5777:
-      return 'Ether';
-    case 137:
-    case 80001:
-      return 'Matic';
-    default:
-      return '' + networkId;
-  }
-}
+// export type BlockChainInfo = { explorerUrl: string; addressTemplateUrl: string };
 
-export function blockexplorerByNetworkId(networkId: number): string {
-  const info = infoByNetworkId(networkId);
-  return typeof info === 'string' ? info : info.explorerUrl || '';
-}
-
-export type BlockChainInfo = { explorerUrl: string; addressTemplateUrl: string };
-
-export function infoByNetworkId(networkId: number): string | BlockChainInfo {
-  switch (networkId) {
-    case 1:
-      return 'https://etherscan.io/';
-    case 3:
-    case 4:
-      return '';
-    case 5:
-      return 'https://goerli.etherscan.io';
-    case 42:
-      return 'ETH';
-    case 56:
-    case 97:
-      return 'BNB';
-    case 100:
-      return 'xDai';
-    case 250:
-      return 'https://ftmscan.com/';
-    case 4002:
-      // FANTOM_TESTNET;
-      return {
-        explorerUrl: 'https://testnet.ftmscan.com/',
-        addressTemplateUrl: 'https://testnet.ftmscan.com/address/ADDRESS'
-      };
-    case 5777:
-      return '';
-    case 137:
-      return 'https://polygonscan.com/';
-    case 80001:
-      return 'https://mumbai.polygonscan.com/';
-    case -1:
-      return 'https://optimistic.etherscan.io/';
-    default:
-      return '';
-  }
-}
-
-export function getContractAddressByNetworkId(networkId: number): string | undefined {
-  switch (networkId) {
-    case 1:
-      return process.env['REACT_APP_CONTRACT_ETHEREUM_MAINNET'];
-    case 3:
-    case 4:
-    case 5:
-      return process.env['REACT_APP_CONTRACT_ETHEREUM_GOERLI'];
-
-    case 42:
-      return '';
-    case 56:
-    case 97:
-      return '';
-    case 100:
-      return '';
-    case 250:
-      return process.env['REACT_APP_CONTRACT_FANTOM_MAINNET'];
-    case 4002:
-      // FANTOM_TESTNET;
-      return process.env['REACT_APP_CONTRACT_FANTOM_TESTNET'];
-    case 5777:
-      return '';
-    case 137:
-      return process.env['REACT_APP_CONTRACT_POLYGON_MAINNET'];
-    case 80001:
-      return process.env['REACT_APP_CONTRACT_POLYGON_MUMBAI'];
-    default:
-      return;
-  }
-}
+// export function infoByNetworkId(networkId: number): string | BlockChainInfo {
+//   switch (networkId) {
+//     case 1:
+//       return 'https://etherscan.io/';
+//     case 3:
+//     case 4:
+//       return '';
+//     case 5:
+//       return 'https://goerli.etherscan.io';
+//     case 42:
+//       return 'ETH';
+//     case 56:
+//     case 97:
+//       return 'BNB';
+//     case 100:
+//       return 'xDai';
+//     case 250:
+//       return 'https://ftmscan.com/';
+//     case 4002:
+//       // FANTOM_TESTNET;
+//       return {
+//         explorerUrl: 'https://testnet.ftmscan.com/',
+//         addressTemplateUrl: 'https://testnet.ftmscan.com/address/ADDRESS'
+//       };
+//     case 5777:
+//       return '';
+//     case 137:
+//       return 'https://polygonscan.com/';
+//     case 80001:
+//       return 'https://mumbai.polygonscan.com/';
+//     case -1:
+//       return 'https://optimistic.etherscan.io/';
+//     default:
+//       return '';
+//   }
+// }

@@ -12,15 +12,15 @@ import {
   useTheme
 } from '@mui/material';
 import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
-import { errorMessage, infoMessage, isStatusMessage, StatusMessage } from '../../types';
+import { errorMessage, isStatusMessage } from '../../types';
 import { KeyBlockEntry } from './KeyBlockEntryUi';
 import { dispatchLoading, dispatchStatusMessage, useNetworkId, usePublicAddress, useWeb3 } from '../../redux-support';
 import { grey } from '@mui/material/colors';
 import { EmptyItem, Item, KeyBlock_get, KeyBlock_len } from '../../contracts/key-block/KeyBlock-support';
 import { StatusMessageElement } from '../utils';
-import { getBlockchainByNetworkId, getContractAddressByNetworkId } from '../Web3InfoPage';
 import { display64 } from '../../utils/crypt-util';
 import Web3 from 'web3';
+import { ContractName, getContractAddress, getNetworkInfo } from '../../contracts/network-info';
 
 const KeyBlockTableUi: FC = () => {
   const theme = useTheme();
@@ -31,41 +31,15 @@ const KeyBlockTableUi: FC = () => {
   const [editItem, setEditItem] = useState(EmptyItem);
   const [filterValue, setFilterValue] = useState('');
   const [openEditor, setOpenEditor] = useState(false);
-  const [numberOfEntries, setNumberOfEntries] = useState(-1);
 
   useEffect(() => {
     const load = async () => {
-      await refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows);
+      await refreshFromBlockchain(publicAddress, networkId, web3, setRows);
     };
     load().catch(console.error);
   }, [web3, publicAddress, networkId]);
 
-  // const update = useCallback(
-  //   (item0: Item) =>
-  //     setRows((rows) => {
-  //       if (item0.index === -1) {
-  //         return [...rows, { ...item0, index: rows.length }];
-  //       } else {
-  //         return rows.map((r) => (r.index === item0.index ? item0 : r));
-  //       }
-  //     }),
-  //   []
-  // );
-
   const renderKeyBlockEntryTable = useCallback(() => {
-    let statusMessage: StatusMessage | undefined = undefined;
-    if (!getContractAddressByNetworkId(networkId)) {
-      statusMessage = infoMessage(`No data`);
-    } else if (numberOfEntries === -1) {
-      statusMessage = infoMessage(`Trying to read KeyBlock entries from ${getBlockchainByNetworkId(networkId || 0)}`);
-    } else if (numberOfEntries === 0) {
-      statusMessage = infoMessage(
-        `No KeyBlock entries found on Blockchain ${getBlockchainByNetworkId(networkId || 0)}`
-      );
-    }
-    if (statusMessage) {
-      return <StatusMessageElement statusMessage={statusMessage} />;
-    }
     return (
       <TableContainer key="table" component={Paper}>
         <Table sx={{ minWidth: 800 }}>
@@ -101,7 +75,7 @@ const KeyBlockTableUi: FC = () => {
         <Stack direction="row" justifyContent="flex-end" alignItems="center" spacing={2}>
           <Button
             onClick={() => {
-              refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows).catch(console.error);
+              refreshFromBlockchain(publicAddress, networkId, web3, setRows).catch(console.error);
             }}
           >
             Refresh
@@ -109,7 +83,13 @@ const KeyBlockTableUi: FC = () => {
         </Stack>
       </TableContainer>
     );
-  }, [publicAddress, web3, numberOfEntries, rows, filterValue, networkId]);
+  }, [publicAddress, web3, rows, filterValue, networkId]);
+
+  const { name } = getNetworkInfo(networkId);
+  const contractAddress = getContractAddress(networkId, ContractName.KeyBlock);
+  if (!contractAddress) {
+    return <StatusMessageElement statusMessage={errorMessage(`No contract found on ${name} for Key Block`)} />;
+  }
 
   return (
     <Stack>
@@ -145,7 +125,7 @@ const KeyBlockTableUi: FC = () => {
           setOpenEditor(false);
         }}
         update={() => {
-          refreshFromBlockchain(publicAddress, networkId, web3, setNumberOfEntries, setRows).catch(console.error);
+          refreshFromBlockchain(publicAddress, networkId, web3, setRows).catch(console.error);
         }}
       />
     </Stack>
@@ -157,7 +137,6 @@ async function refreshFromBlockchain(
   publicAddress: string | undefined,
   networkId: number,
   web3: Web3 | undefined,
-  setNumberOfEntries: (n: number) => void,
   setRows: (items: Item[]) => void
 ) {
   if (!publicAddress || !web3 || !networkId) {
@@ -169,11 +148,8 @@ async function refreshFromBlockchain(
     dispatchStatusMessage();
     const len = await KeyBlock_len(web3, publicAddress);
     if (isStatusMessage(len)) {
-      setNumberOfEntries(0);
       dispatchStatusMessage(len);
       return;
-    } else {
-      setNumberOfEntries(len);
     }
     const items: Item[] = [];
     for (let index = 0; index < len; index++) {

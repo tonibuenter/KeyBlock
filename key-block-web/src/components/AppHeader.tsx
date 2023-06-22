@@ -4,13 +4,15 @@ import { green } from '@mui/material/colors';
 import LinkIcon from '@mui/icons-material/Link';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import { displayAddress } from '../utils/crypt-util';
-import { getBlockchainByNetworkId, Web3InfoPage } from './Web3InfoPage';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import { useContext, useState } from 'react';
 import { ColorModeContext } from '../App';
 import { useNetworkId, usePublicAddress } from '../redux-support';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { menuDefs } from './menu';
+import { getNetworkInfo } from '../contracts/network-info';
+import { Web3InfoPage } from './Web3InfoPage';
 
 export function AppHeader() {
   const theme = useTheme();
@@ -20,6 +22,7 @@ export function AppHeader() {
   const [openInfoPage, setOpenInfoPage] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { name } = getNetworkInfo(networkId);
   return (
     <AppBar
       position="static"
@@ -54,9 +57,7 @@ export function AppHeader() {
           </Stack>
 
           <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
-            <Button onClick={() => setOpenInfoPage(true)}>
-              {networkId ? getBlockchainByNetworkId(networkId) : ''}
-            </Button>
+            <Button onClick={() => setOpenInfoPage(true)}>{name}</Button>
           </Stack>
 
           <IconButton style={{ float: 'right' }} onClick={colorMode.toggleColorMode} color="inherit">
@@ -70,14 +71,5 @@ export function AppHeader() {
 }
 
 function title(path: string) {
-  switch (path) {
-    case '/key-block':
-      return 'Welcome to KeyBlock';
-    case '/public-key-store':
-      return 'Welcome to Public Key Store';
-    case '/login':
-      return 'Connect...';
-    case '/menu':
-      return 'Menu';
-  }
+  return menuDefs.find((def) => '/' + def.path === path)?.name || 'Menu';
 }

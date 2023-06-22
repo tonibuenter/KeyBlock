@@ -5,15 +5,10 @@ import Loader from './Loader';
 import { AppHeader } from './AppHeader';
 import { createHashRouter, Outlet, RouterProvider, useNavigate, useRouteError } from 'react-router-dom';
 import Button from '@mui/material/Button';
-import { PublicKeyStoreUi } from './public-key-store/PublicKeyStoreUi';
 import { AppMenu } from './AppMenu';
-import KeyBlockTableUi from './key-block/KeyBlockTableUi';
 import { usePublicAddress } from '../redux-support';
 import { useEffect } from 'react';
-import { PrivateMessageStoreUi } from './private-message-store/PrivateMessageStoreUi';
-
-console.debug('process.env.PUBLIC_URL ', process.env.PUBLIC_URL);
-// const basename = process.env.PUBLIC_URL || '/';
+import { menuDefs } from './menu';
 
 const router = createHashRouter(
   [
@@ -26,18 +21,7 @@ const router = createHashRouter(
           path: '*',
           element: <AppMenu />
         },
-        {
-          path: 'key-block',
-          element: <KeyBlockTableUi />
-        },
-        {
-          path: 'public-key-store',
-          element: <PublicKeyStoreUi />
-        },
-        {
-          path: 'private-message-store',
-          element: <PrivateMessageStoreUi />
-        }
+        ...menuDefs.map(({ path, element }) => ({ path, element }))
       ]
     },
 
@@ -87,7 +71,6 @@ function AppNavigation() {
 
       <Container key={'app-menu'} maxWidth={false}>
         <Stack spacing={2} mt={'1em'} mb={'1em'}>
-          {/*{publicAddress ? <PrivateMessageTable /> : <Login />}*/}
           <Outlet />
         </Stack>
         <Loader />
