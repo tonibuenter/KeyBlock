@@ -178,11 +178,3 @@ contract PrivateMessageStore
     }
 
 }
-
-/*
-
-address0            -   address1
-...                     ...
-5: reply-message    -   index:0 sender=:address0, message, hasReply:true, replyIndex:5
-
-*/

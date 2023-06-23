@@ -38,9 +38,10 @@ export function PublicKeyStoreUi() {
     }
     const myPublicKey0 = await wrapPromise(PublicKeyStore_getMine(web3, publicAddress), 'Reading my Public Key...');
     if (isStatusMessage(myPublicKey0)) {
-      dispatchSnackbarMessage(myPublicKey0);
+      console.error(myPublicKey0);
+      return;
     } else if (!myPublicKey0) {
-      dispatchSnackbarMessage(infoMessage(`My Public Key is not yet save on: ${name}`));
+      dispatchSnackbarMessage(infoMessage(`My Public Key is not yet saved on: ${name}`));
       setMyPublicKey('');
     } else {
       setMyPublicKey(myPublicKey0);
