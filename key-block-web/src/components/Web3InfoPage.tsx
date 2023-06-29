@@ -46,30 +46,23 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
     return <></>;
   }
 
-  const { blockExplorerUrl = 'n/a', currencySymbol = 'n/a', name = 'n/a' } = getNetworkInfo(networkId) || {};
+  const { blockExplorerUrl, currencySymbol = 'n/a', name = 'n/a', homePage } = getNetworkInfo(networkId) || {};
 
   return (
     <Dialog open={open} onClose={done} fullWidth={true} maxWidth={'md'}>
       <DialogTitle>Web3 Info Page</DialogTitle>
       <DialogContent>
         <Stack spacing={4}>
-          <DialogContentText>This info page shows information about the KeyBlock contract and more:</DialogContentText>
+          <DialogContentText>This info page shows information about the current blockchain</DialogContentText>
           <TableContainer key="table" component={Paper}>
             <Table sx={{ minWidth: 800 }}>
               <TableHead>
                 <TableRow>
                   <TableCell key={'name'}>Property</TableCell>
-                  <TableCell key={'value'}>Value</TableCell>
+                  <TableCell key={'value'}>Property Value</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {Object.entries(ContractName).map(([key, value]) => (
-                  <TableRow key={key}>
-                    <TableCell key={'name'}>Contract : {key}</TableCell>
-                    <TableCell key={'value'}>{getContractAddress(networkId, value)}</TableCell>
-                  </TableRow>
-                ))}
-
                 <TableRow key={'Your Address'}>
                   <TableCell key={'name'}>Your Address</TableCell>
                   <TableCell key={'value'}>{publicAddress}</TableCell>
@@ -78,18 +71,24 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
                   <TableCell key={'name'}>Your Public Key</TableCell>
                   <TableCell key={'value'}>{publicKeyHolder?.publicKey || ''}</TableCell>
                 </TableRow>
-                <TableRow key={'balance-wei'}>
-                  <TableCell key={'name'}>Balance Wei</TableCell>
-                  <TableCell key={'value'}>{loading ? 'loading' : balanceWei}</TableCell>
-                </TableRow>
+                {Object.entries(ContractName).map(([key, value]) => (
+                  <TableRow key={key}>
+                    <TableCell key={'name'}>Contract : {key}</TableCell>
+                    <TableCell key={'value'}>{getContractAddress(networkId, value)}</TableCell>
+                  </TableRow>
+                ))}
                 <TableRow key={'balance-ether'}>
                   <TableCell key={'name'}>Balance {currencySymbol}</TableCell>
                   <TableCell key={'value'}>
                     {loading || !web3 ? 'loading' : web3.utils.fromWei(balanceWei, 'ether').toString()}
                   </TableCell>
                 </TableRow>
+                <TableRow key={'balance-wei'}>
+                  <TableCell key={'name'}>Balance Wei</TableCell>
+                  <TableCell key={'value'}>{loading ? 'loading' : balanceWei}</TableCell>
+                </TableRow>
                 <TableRow key={'balance-networkId'}>
-                  <TableCell key={'name'}>Network Name: Id</TableCell>
+                  <TableCell key={'name'}>Network Name</TableCell>
                   <TableCell key={'value'}>{loading || !web3 ? 'loading' : name}</TableCell>
                 </TableRow>
                 <TableRow key={'balance-chainId'}>
@@ -100,12 +99,28 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
                   <TableCell key={'name'}>Gas Price Wei</TableCell>
                   <TableCell key={'value'}>{loading || !web3 ? 'loading' : gasPriceWei}</TableCell>
                 </TableRow>
-                <TableRow key={'block-scan'}>
+                <TableRow key={'block-explorer-url'}>
                   <TableCell key={'name'}>Block Explorer</TableCell>
                   <TableCell key={'value'}>
-                    <a target={'_blank'} href={blockExplorerUrl} rel="noreferrer">
-                      {blockExplorerUrl}
-                    </a>
+                    {blockExplorerUrl ? (
+                      <a target={'_blank'} href={blockExplorerUrl} rel="noreferrer">
+                        {blockExplorerUrl}
+                      </a>
+                    ) : (
+                      'n/a'
+                    )}
+                  </TableCell>
+                </TableRow>{' '}
+                <TableRow key={'home-page'}>
+                  <TableCell key={'name'}>Home Page</TableCell>
+                  <TableCell key={'value'}>
+                    {homePage ? (
+                      <a target={'_blank'} href={homePage} rel="noreferrer">
+                        {blockExplorerUrl}
+                      </a>
+                    ) : (
+                      'n/a'
+                    )}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -119,6 +134,7 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
     </Dialog>
   );
 }
+
 //
 // export function getBlockchainByNetworkId(networkId: number | string): string {
 //   const id = +networkId || 0;

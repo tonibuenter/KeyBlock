@@ -77,7 +77,8 @@ export const networks: NetworkInfo[] = [
     currencySymbol: 'FTM',
     blockExplorerUrl: 'https://ftmscan.com',
     rpcUrl: 'https://rpcapi.fantom.network',
-    PostFix: 'FANTOM_MAINNET'
+    PostFix: 'FANTOM_MAINNET',
+    homePage: 'https://fantom.foundation'
   },
   {
     name: 'Fantom Testnet',

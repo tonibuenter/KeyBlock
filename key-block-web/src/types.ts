@@ -76,4 +76,5 @@ export type NetworkInfo = {
   blockExplorerUrl: string;
   rpcUrl: string;
   PostFix: string;
+  homePage?: string;
 };

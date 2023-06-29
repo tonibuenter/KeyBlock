@@ -52,7 +52,7 @@ export const dispatchPublicAddress = (publicAddress: string) =>
 export const usePublicKeyHolder = () =>
   useSelector((state: KeyBlockReduxState): PublicKeyHolder | undefined => state.publicKeyHolder);
 
-export const dispatchPublicKeyHolder = (publicKeyHolder: PublicKeyHolder) =>
+export const dispatchPublicKeyHolder = (publicKeyHolder: PublicKeyHolder | undefined) =>
   getStore().dispatch({
     type: ACTIONS.UPDATE,
     payload: { publicKeyHolder }

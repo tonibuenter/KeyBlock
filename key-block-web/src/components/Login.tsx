@@ -5,15 +5,17 @@ import {
   dispatchNetworkId,
   dispatchPublicAddress,
   dispatchPublicKeyHolder,
+  dispatchSnackbarMessage,
   dispatchStatusMessage,
   dispatchWeb3
 } from '../redux-support';
 import { Box, Button, Stack } from '@mui/material';
 
 import logo from '../images/keyblock200.png';
-import { AddressBookEntry, errorMessage, HolderType, isStatusMessage, PublicKeyHolder } from '../types';
+import { AddressBookEntry, errorMessage, HolderType, infoMessage, isStatusMessage, PublicKeyHolder } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { PublicKeyStore_getMine } from '../contracts/public-key-store/PublicKeyStore-support';
+import { displayAddress } from '../utils/crypt-util';
 
 const addressBook: AddressBookEntry[] = [
   {
@@ -58,17 +60,18 @@ const Login: React.FC = () => {
     setConnected(true);
     try {
       if (!w.ethereum) {
-        dispatchStatusMessage(errorMessage('Can not connect to Wallet!', 'window.ethereum id not initialized!'));
+        dispatchSnackbarMessage(errorMessage('Can not connect to Wallet!', 'window.ethereum id not initialized!'));
         return;
       }
 
       await w.ethereum.enable();
+      dispatchSnackbarMessage(infoMessage('Ethereum enabled!'));
 
       // We don't know window.web3 version, so we use our own instance of Web3
       // with the injected provider given by MetaMask
       const web3 = new Web3(w.ethereum);
       dispatchWeb3(web3);
-
+      dispatchSnackbarMessage(infoMessage('Web3 initialized!'));
       w?.ethereum?.on('accountsChanged', () =>
         // e: never
         {
@@ -100,12 +103,19 @@ const Login: React.FC = () => {
 
       // PUBLIC ADDRESS & PUBLIC KEY
       if (!publicAddress) {
-        dispatchStatusMessage(errorMessage('Please open MetaMask first.', 'Web3 could not detect a public address!'));
+        dispatchSnackbarMessage(errorMessage('Please open MetaMask first.', 'Web3 could not detect a public address!'));
         return;
       }
-      const publicKeyHolder = await getPublicKey64(web3, publicAddress);
-      dispatchPublicKeyHolder(publicKeyHolder);
+      dispatchSnackbarMessage(infoMessage(`Address ${displayAddress(publicAddress)} connected`));
       dispatchPublicAddress(publicAddress);
+
+      const publicKeyHolder = await getPublicKey64(web3, publicAddress);
+      if (!publicKeyHolder) {
+        dispatchSnackbarMessage(errorMessage('Could not access the Public Key!'));
+      } else {
+        dispatchSnackbarMessage(infoMessage(`Public Key ${displayAddress(publicKeyHolder.publicKey)} connected`));
+      }
+      dispatchPublicKeyHolder(publicKeyHolder);
       navigate('/menu');
 
       // ADDRESS BOOK
@@ -162,7 +172,7 @@ async function getCurrentAddress(web3: Web3) {
   return addr.toLowerCase();
 }
 
-export async function getPublicKey64(web3: Web3, publicAddress: string): Promise<PublicKeyHolder> {
+export async function getPublicKey64(web3: Web3, publicAddress: string): Promise<PublicKeyHolder | undefined> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let publicKey = await PublicKeyStore_getMine(web3, publicAddress);
   let holder: HolderType = 'public-key-store';
@@ -177,6 +187,9 @@ export async function getPublicKey64(web3: Web3, publicAddress: string): Promise
       params: [publicAddress]
     })) as string;
     holder = 'wallet';
+  }
+  if (!publicKey) {
+    return;
   }
   return { publicKey, holder };
 }
