@@ -39,8 +39,11 @@ export function display64(s: string): string {
   return `${s.substring(0, 4)}...${s.substring(s.length - 8)} (size: ${s.length})`;
 }
 
-export function displayAddress(s: string): string {
+export function displayAddress(s: string, isXs = false): string {
   try {
+    if (isXs) {
+      return s.substring(s.length - 4);
+    }
     return s.substring(0, 5) + '...' + s.substring(s.length - 4);
   } catch (e) {
     return s;

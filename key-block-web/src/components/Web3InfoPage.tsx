@@ -110,13 +110,13 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
                       'n/a'
                     )}
                   </TableCell>
-                </TableRow>{' '}
+                </TableRow>
                 <TableRow key={'home-page'}>
                   <TableCell key={'name'}>Home Page</TableCell>
                   <TableCell key={'value'}>
                     {homePage ? (
                       <a target={'_blank'} href={homePage} rel="noreferrer">
-                        {blockExplorerUrl}
+                        {homePage}
                       </a>
                     ) : (
                       'n/a'
@@ -134,110 +134,3 @@ export function Web3InfoPage({ open, done }: { open: boolean; done: NotifyFun })
     </Dialog>
   );
 }
-
-//
-// export function getBlockchainByNetworkId(networkId: number | string): string {
-//   const id = +networkId || 0;
-//   switch (id) {
-//     case 1:
-//       return 'Ethereum Mainnet';
-//     case 3:
-//       return 'Ropsten';
-//     case 4:
-//       return 'Rinkeby';
-//     case 5:
-//       return 'Goerli';
-//     case 10:
-//       return 'Optimism Mainnet';
-//     case 42:
-//       return 'Kovan';
-//     case 56:
-//       return 'Binance Smart Chain (Mainnet)';
-//     case 97:
-//       return 'Binance Smart Chain (Testnet)';
-//     case 100:
-//       return 'xDai (Mainnet)';
-//     case 250:
-//       return 'Fantom Mainnet';
-//     case 4002:
-//       return 'Fantom Testnet';
-//     case 5777:
-//       return 'Local (Ganache): 5777';
-//     case 137:
-//       return 'Polygon Mainnet (Matic): 137';
-//     case 80001:
-//       return 'Polygon Mumbai Testnet: 80001';
-//     default:
-//       return id.toString();
-//   }
-// }
-//
-// export function currencyByNetworkId(networkId: number): string {
-//   switch (networkId) {
-//     case 1:
-//     case 3:
-//     case 4:
-//     case 5:
-//     case 42:
-//       return 'ETH';
-//     case 56:
-//     case 97:
-//       return 'BNB';
-//     case 100:
-//       return 'xDai';
-//     case 250:
-//     case 4002:
-//       return 'FTM';
-//     case 5777:
-//       return 'Ether';
-//     case 137:
-//     case 80001:
-//       return 'Matic';
-//     default:
-//       return '' + networkId;
-//   }
-// }
-
-// export function blockexplorerByNetworkId(networkId: number): string {
-//   const info = infoByNetworkId(networkId);
-//   return typeof info === 'string' ? info : info.explorerUrl || '';
-// }
-
-// export type BlockChainInfo = { explorerUrl: string; addressTemplateUrl: string };
-
-// export function infoByNetworkId(networkId: number): string | BlockChainInfo {
-//   switch (networkId) {
-//     case 1:
-//       return 'https://etherscan.io/';
-//     case 3:
-//     case 4:
-//       return '';
-//     case 5:
-//       return 'https://goerli.etherscan.io';
-//     case 42:
-//       return 'ETH';
-//     case 56:
-//     case 97:
-//       return 'BNB';
-//     case 100:
-//       return 'xDai';
-//     case 250:
-//       return 'https://ftmscan.com/';
-//     case 4002:
-//       // FANTOM_TESTNET;
-//       return {
-//         explorerUrl: 'https://testnet.ftmscan.com/',
-//         addressTemplateUrl: 'https://testnet.ftmscan.com/address/ADDRESS'
-//       };
-//     case 5777:
-//       return '';
-//     case 137:
-//       return 'https://polygonscan.com/';
-//     case 80001:
-//       return 'https://mumbai.polygonscan.com/';
-//     case -1:
-//       return 'https://optimistic.etherscan.io/';
-//     default:
-//       return '';
-//   }
-// }

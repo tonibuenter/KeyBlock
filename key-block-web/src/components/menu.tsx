@@ -2,6 +2,8 @@ import KeyBlockTableUi from './key-block/KeyBlockTableUi';
 import { PublicKeyStoreUi } from './public-key-store/PublicKeyStoreUi';
 import { PrivateMessageStoreUi } from './private-message-store/PrivateMessageStoreUi';
 import { JSX } from 'react';
+import { About } from './About';
+import { ToolsUi } from './tools/ToolsUi';
 
 export type MenuDef = { path: string; name: string; description: string; element: JSX.Element };
 
@@ -23,5 +25,17 @@ export const menuDefs: MenuDef[] = [
     name: 'Private & Safe Messages',
     description: 'Send and receive encrypted messages.',
     element: <PrivateMessageStoreUi />
+  },
+  {
+    path: 'tools',
+    name: 'Tools',
+    description: '',
+    element: <ToolsUi />
+  },
+  {
+    path: 'about',
+    name: 'About',
+    description: '',
+    element: <About />
   }
 ];

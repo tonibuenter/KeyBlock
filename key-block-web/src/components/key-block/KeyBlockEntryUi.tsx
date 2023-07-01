@@ -9,7 +9,13 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { errorMessage, infoMessage, isStatusMessage, NotifyFun, StatusMessage, warningMessage } from '../../types';
 import { Box, Stack } from '@mui/material';
-import { dispatchLoading, usePublicAddress, usePublicKeyHolder, useWeb3 } from '../../redux-support';
+import {
+  dispatchLoading,
+  dispatchSnackbarMessage,
+  usePublicAddress,
+  usePublicKeyHolder,
+  useWeb3
+} from '../../redux-support';
 import { StatusMessageElement } from '../utils';
 import moment from 'moment';
 import { EmptyItem, Item, KeyBlock_add, KeyBlock_set } from '../../contracts/key-block/KeyBlock-support';
@@ -121,10 +127,10 @@ export function KeyBlockEntry({
                     setStatusMessage(warningMessage('Please confirm/reject MetaMask dialog!'));
                     const s0: any = await decryptContent(publicAddress, entry.value);
                     setEntry((i) => ({ ...i, enc: false, value: s0.value }));
-                    setStatusMessage(infoMessage('Decryption done successfully'));
+                    dispatchSnackbarMessage(infoMessage('Decryption done successfully'));
                     clearStatusMessageIn(2000);
                   } catch (e) {
-                    setStatusMessage(errorMessage('Could not decrypt message!', (e as Error).message));
+                    dispatchSnackbarMessage(errorMessage('Could not decrypt message!', (e as Error).message));
                     clearStatusMessageIn(5000);
                   } finally {
                     dispatchLoading('');

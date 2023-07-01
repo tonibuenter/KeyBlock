@@ -10,3 +10,9 @@ export const PublicKeyBox = withStyles(Box, (theme) => ({
     color: theme.palette.mode === 'dark' ? grey.A400 : grey.A700
   }
 }));
+
+export const DarkEnabledBox = withStyles(Box, (theme) => ({
+  root: {
+    color: theme.palette.mode === 'dark' ? grey.A400 : grey.A700
+  }
+}));
