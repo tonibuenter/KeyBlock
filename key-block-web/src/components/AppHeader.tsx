@@ -3,6 +3,7 @@ import logo from '../images/keyblock200.png';
 import { green } from '@mui/material/colors';
 import LinkIcon from '@mui/icons-material/Link';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { displayAddress } from '../utils/crypt-util';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
@@ -13,6 +14,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { menuDefs } from './menu';
 import { getNetworkInfo } from '../contracts/network-info';
 import { Web3InfoPage } from './Web3InfoPage';
+import { useIsSmall } from './utils';
 
 export function AppHeader() {
   const theme = useTheme();
@@ -23,6 +25,10 @@ export function AppHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { name } = getNetworkInfo(networkId);
+  const isXs = useIsSmall();
+
+  console.debug('isXs', isXs);
+
   return (
     <AppBar
       position="static"
@@ -43,7 +49,7 @@ export function AppHeader() {
             sx={{ fontWeight: 'bold', fontSize: '120%', cursor: 'pointer' }}
           >
             <img src={logo} alt={'KeyBlock'} style={{ maxHeight: '1.2em' }} />
-            <Box>{title(location.pathname)}</Box>
+            {isXs ? '' : <Box>{title(location.pathname)}</Box>}
           </Stack>
           <Stack
             direction="row"
@@ -53,11 +59,13 @@ export function AppHeader() {
             sx={{ fontSize: '100%', color: publicAddress ? green[200] : 'white', fontWeight: 'bold' }}
           >
             {publicAddress ? <LinkIcon /> : <LinkOffIcon />}
-            <Box>{publicAddress ? displayAddress(publicAddress) : 'not connected'}</Box>
+            <Box>{publicAddress ? displayAddress(publicAddress, isXs) : 'not connected'}</Box>
           </Stack>
 
           <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
-            <Button onClick={() => setOpenInfoPage(true)}>{name}</Button>
+            <Button onClick={() => setOpenInfoPage(true)} startIcon={<InfoOutlinedIcon />}>
+              {isXs ? '' : name}
+            </Button>
           </Stack>
 
           <IconButton style={{ float: 'right' }} onClick={colorMode.toggleColorMode} color="inherit">

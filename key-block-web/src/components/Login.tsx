@@ -52,9 +52,10 @@ const Login: React.FC = () => {
     }
   }, [w]);
 
-  let handleEthereum: () => Promise<void>;
-  handleEthereum = useCallback(async () => {
+  // let handleEthereum: () => Promise<void>;
+  const handleEthereum = useCallback(async () => {
     if (connected) {
+      dispatchSnackbarMessage(infoMessage('Connected!'));
       return;
     }
     setConnected(true);
@@ -121,7 +122,7 @@ const Login: React.FC = () => {
       // ADDRESS BOOK
       dispatchAddressBook(addressBook);
     } catch (error) {
-      dispatchStatusMessage(errorMessage('Error occurred while connecting to Wallet', error));
+      dispatchSnackbarMessage(errorMessage('Error occurred while connecting to Wallet', error));
     }
   }, [w, connected, navigate]);
 
@@ -129,10 +130,11 @@ const Login: React.FC = () => {
     if (w.ethereum) {
       handleEthereum().catch(console.error);
     } else {
-      window.addEventListener(
+      dispatchSnackbarMessage(infoMessage('Try to detect METAMASK...'));
+      w.addEventListener(
         'ethereum#initialized',
         () => {
-          handleEthereum().catch(console.error);
+          handleEthereum().catch((e) => dispatchSnackbarMessage(errorMessage(`Error occurred`, e)));
         },
         {
           once: true
