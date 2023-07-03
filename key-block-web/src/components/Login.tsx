@@ -66,7 +66,7 @@ const Login: React.FC = () => {
       }
 
       await w.ethereum.enable();
-      dispatchSnackbarMessage(infoMessage('Ethereum enabled!'));
+      dispatchSnackbarMessage(infoMessage('Ethereum is enabled!'));
 
       // We don't know window.web3 version, so we use our own instance of Web3
       // with the injected provider given by MetaMask
@@ -76,21 +76,13 @@ const Login: React.FC = () => {
       w?.ethereum?.on('accountsChanged', () =>
         // e: never
         {
-          // const newPublicAddress = e[0];
-          // dispatchPublicAddress(newPublicAddress);
           w?.location?.reload();
         }
       );
 
-      w?.ethereum?.on('networkChanged', () =>
-        // networkId: never
-        {
-          // if (+networkId) {
-          //   dispatchNetworkId(+networkId);
-          // }
-          w?.location?.reload();
-        }
-      );
+      w?.ethereum?.on('networkChanged', () => {
+        w?.location?.reload();
+      });
 
       const networkId = await getCurrentNetworkId(web3);
       if (networkId) {

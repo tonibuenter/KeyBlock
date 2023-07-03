@@ -21,6 +21,19 @@ contract('UniqueNameStore', (accounts) => {
     assert.equal(name, userName, 'The name was not set correctly');
   });
 
+  it('allows a user to delete (un set) their name', async () => {
+    await contractInstance.unSetName({ from: user });
+
+    let name = await contractInstance.addressToNameMap(user);
+
+    assert.equal(name, '', 'The name is still on blockchain');
+
+    await contractInstance.setName(userName, { from: user });
+    name = await contractInstance.addressToNameMap(user);
+
+    assert.equal(name, userName, 'The name was not set correctly');
+  });
+
   it('does not allow a name to be taken by another user', async () => {
     try {
       await contractInstance.setName(userName, { from: owner });

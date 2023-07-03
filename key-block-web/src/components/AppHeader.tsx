@@ -27,8 +27,6 @@ export function AppHeader() {
   const { name } = getNetworkInfo(networkId);
   const isXs = useIsSmall();
 
-  console.debug('isXs', isXs);
-
   return (
     <AppBar
       position="static"

@@ -52,6 +52,10 @@ export const infoMessage = (userMessage: string): StatusMessage => ({
   status: 'info',
   userMessage: userMessage
 });
+export const successMessage = (userMessage: string): StatusMessage => ({
+  status: 'success',
+  userMessage: userMessage
+});
 
 export const isStatusMessage = (arg: any): arg is StatusMessage =>
   arg && typeof arg === 'object' && arg.status && arg.userMessage;

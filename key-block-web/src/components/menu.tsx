@@ -4,6 +4,7 @@ import { PrivateMessageStoreUi } from './private-message-store/PrivateMessageSto
 import { JSX } from 'react';
 import { About } from './About';
 import { ToolsUi } from './tools/ToolsUi';
+import { UniqueNameStoreUi } from './unique-name-store/UniqueNameStoreUi';
 
 export type MenuDef = { path: string; name: string; description: string; element: JSX.Element };
 
@@ -26,6 +27,13 @@ export const menuDefs: MenuDef[] = [
     description: 'Send and receive encrypted messages.',
     element: <PrivateMessageStoreUi />
   },
+  {
+    path: 'unique-name-store',
+    name: 'My Unique Name',
+    description: 'Connect a unique name to your address!',
+    element: <UniqueNameStoreUi />
+  },
+
   {
     path: 'tools',
     name: 'Tools',

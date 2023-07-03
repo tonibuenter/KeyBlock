@@ -11,7 +11,7 @@ contract UniqueNameStore is Ownable, Pausable {
 
     function setName(string memory _name) public whenNotPaused {
         // Ensure the name is not already taken.
-        require(nameToAddressMap[_name] == address(0), "Name already taken");
+        require(nameToAddressMap[_name] == address(0), "Name already taken!");
 
         // If the caller already has a name, remove the old name.
         string memory currentName = addressToNameMap[msg.sender];
@@ -22,6 +22,17 @@ contract UniqueNameStore is Ownable, Pausable {
         // Set the new name.
         addressToNameMap[msg.sender] = _name;
         nameToAddressMap[_name] = msg.sender;
+    }
+
+    function unSetName() public whenNotPaused {
+        // Ensure the name is available.
+        require(bytes(addressToNameMap[msg.sender]).length > 0, "No name set!");
+
+        string memory currentName = addressToNameMap[msg.sender];
+
+        delete nameToAddressMap[currentName];
+        delete addressToNameMap[msg.sender];
+
     }
 
     function changeName(address _address, string memory _newName) public onlyOwner {

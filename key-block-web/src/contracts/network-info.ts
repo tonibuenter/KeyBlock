@@ -3,7 +3,8 @@ import { NetworkInfo } from '../types';
 export enum ContractName {
   KeyBlock = 'KEYBLOCK',
   PublicKeyStore = 'PUBLICKEYSTORE',
-  PrivateMessageStore = 'PRIVATEMESSAGESTORE'
+  PrivateMessageStore = 'PRIVATEMESSAGESTORE',
+  UniqueNameStore = 'UNIQUENAMESTORE'
 }
 
 export const networks: NetworkInfo[] = [
