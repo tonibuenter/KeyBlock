@@ -5,6 +5,7 @@ import { JSX } from 'react';
 import { About } from './About';
 import { ToolsUi } from './tools/ToolsUi';
 import { UniqueNameStoreUi } from './unique-name-store/UniqueNameStoreUi';
+import { FileEncryptionUi } from './file-encryption/FileEncryptionUi';
 
 export type MenuDef = { path: string; name: string; description: string; element: JSX.Element };
 
@@ -32,6 +33,12 @@ export const menuDefs: MenuDef[] = [
     name: 'My Unique Name',
     description: 'Connect a unique name to your address!',
     element: <UniqueNameStoreUi />
+  },
+  {
+    path: 'file-encryption',
+    name: 'File Encryption',
+    description: 'Upload a file for encryption and decryption.',
+    element: <FileEncryptionUi />
   },
 
   {

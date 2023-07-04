@@ -104,6 +104,22 @@ export const networks: NetworkInfo[] = [
     blockExplorerUrl: 'https://optimistic.etherscan.io',
     rpcUrl: 'https://mainnet.optimism.io',
     PostFix: ''
+  },
+  {
+    name: 'Filecoin - Calibration testnet',
+    chainId: 314159,
+    currencySymbol: 'tFIL',
+    blockExplorerUrl: 'https://calibration.filscan.io',
+    rpcUrl: '',
+    PostFix: ''
+  },
+  {
+    name: 'Filecoin - Mainnet',
+    chainId: 314,
+    currencySymbol: 'FIL',
+    blockExplorerUrl: 'https://filfox.info/en',
+    rpcUrl: '',
+    PostFix: ''
   }
 ];
 
